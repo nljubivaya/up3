@@ -42,11 +42,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Preview
 @Composable
 fun RegisterAccount() {
-//    val vm = viewModel { RegisterAccountViewModel() }
+    val vm = viewModel { RegisterAccountViewModel() }
     var isChecked by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -99,11 +100,11 @@ fun RegisterAccount() {
                     // Поле для имени
                     Text("Ваше имя", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
-                        value = "",
+                        value = vm.userName,
                         shape = RoundedCornerShape(16.dp),
                         textStyle = TextStyle(fontSize = 18.sp),
                         placeholder = { Text("xxxxxxxx", fontSize = 15.sp, color = Color(0xFF6A6A6A)) }, // Исправлено на 'color'
-                        onValueChange = { },
+                        onValueChange = {  newName -> vm.userName = newName },
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                         )
@@ -113,11 +114,11 @@ fun RegisterAccount() {
                     // Поле для email
                     Text("Email", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
-                        value = "",
+                        value = vm.userEmail,
                         shape = RoundedCornerShape(16.dp),
                         textStyle = TextStyle(fontSize = 18.sp),
                         placeholder = { Text("xyz@gmail.com", fontSize = 15.sp, color = Color(0xFF6A6A6A)) }, // Исправлено на 'color'
-                        onValueChange = { },
+                        onValueChange = {  newEmail -> vm.userEmail = newEmail},
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                         )
@@ -127,11 +128,11 @@ fun RegisterAccount() {
                     // Поле для пароля
                     Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
-                        value = "",
+                        value = vm.userPassword,
                         shape = RoundedCornerShape(16.dp),
                         textStyle = TextStyle(fontSize = 18.sp),
                         placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
-                        onValueChange = { },
+                        onValueChange = { newPassword -> vm.userPassword = newPassword },
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                         )
@@ -174,7 +175,7 @@ fun RegisterAccount() {
                     verticalArrangement = Arrangement.Center // Центрируем по вертикали
                 ) {
                     Button(
-                        onClick = { },
+                        onClick = { vm.onSignUpEmail() },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth() // Занять всю ширину

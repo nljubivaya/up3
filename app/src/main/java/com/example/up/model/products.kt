@@ -9,5 +9,6 @@ data class products(
     val category_id: String,
     val cost: Float,
     val description: String,
-    val is_best_seller: Boolean,
+//    val is_best_seller: Boolean,
+    val photo: String,
 )

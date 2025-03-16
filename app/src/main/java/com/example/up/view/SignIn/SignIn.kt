@@ -44,12 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.up.R
 
 @Preview
 @Composable
 fun SignIn() {
-//    val vm = viewModel { SignInViewModel() }
+    val vm = viewModel { SignInViewModel() }
     var passwordVisible by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -102,7 +103,7 @@ fun SignIn() {
                 // Поле для email
                 Text("Email", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
-                    value = "",
+                    value = vm.userEmail,
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = {
@@ -112,7 +113,7 @@ fun SignIn() {
                             color = Color(0xFF6A6A6A)
                         )
                     },
-                    onValueChange = { },
+                    onValueChange = { newText -> vm.userEmail = newText },
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                     )
@@ -122,8 +123,8 @@ fun SignIn() {
                 // Поле для пароля
                 Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {  },
+                    value = vm.userPassword,
+                    onValueChange = {  newText -> vm.userPassword = newText  },
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
@@ -164,7 +165,7 @@ fun SignIn() {
                 verticalArrangement = Arrangement.Center // Центрируем по вертикали
             ) {
                 Button(
-                    onClick = { },
+                    onClick = { vm.onSignInEmailPassword() },
                     shape = RoundedCornerShape(16.dp),
                      modifier = Modifier
                         .fillMaxWidth() // Занять всю ширину
