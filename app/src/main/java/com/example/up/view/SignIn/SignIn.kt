@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +54,9 @@ import com.example.up.R
 fun SignIn() {
     val vm = viewModel { SignInViewModel() }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -165,18 +170,42 @@ fun SignIn() {
                 verticalArrangement = Arrangement.Center // Центрируем по вертикали
             ) {
                 Button(
-                    onClick = { vm.onSignInEmailPassword() },
+                    onClick = {
+                        // Проверка на пустоту полей
+                        if (vm.userEmail.isEmpty() || vm.userPassword.isEmpty()) {
+                            errorMessage = "Заполните все поля"
+                            showDialog = true
+                        } else if (!vm.isValidEmail(vm.userEmail)) {
+                            errorMessage = "Некорректный email"
+                            showDialog = true
+                        } else {
+                            vm.onSignInEmailPassword()
+                        }
+                    },
                     shape = RoundedCornerShape(16.dp),
-                     modifier = Modifier
+                    modifier = Modifier
                         .fillMaxWidth() // Занять всю ширину
-                        .padding(horizontal = 0.dp)
-                    .padding(horizontal = 55.dp),
+                        .padding(horizontal = 55.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF48B2E7),
                         contentColor = Color.White
                     )
                 ) {
                     Text("Войти", fontSize = 14.sp)
+                }
+
+                // Диалоговое окно для отображения ошибки
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("Ошибка") },
+                        text = { Text(errorMessage) },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text("OK")
+                            }
+                        }
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(50.dp)) // Пробел между кнопкой и текстом

@@ -2,7 +2,6 @@ package com.example.up.view.ForgotPassword
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,18 +11,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,18 +34,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.up.R
 
 @Preview
 @Composable
 fun ForgotPassword() {
-//    val vm = viewModel { RegisterAccountViewModel() }
+    val vm = viewModel { ForgotPasswordViewModel() }
+    var email by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +92,7 @@ fun ForgotPassword() {
         Column(modifier = Modifier.padding(16.dp)) {
             // Поле для email
             OutlinedTextField(
-                value = "",
+                value = email,
                 shape = RoundedCornerShape(16.dp),
                 textStyle = TextStyle(fontSize = 18.sp),
                 placeholder = {
@@ -99,7 +102,7 @@ fun ForgotPassword() {
                         color = Color(0xFF6A6A6A)
                     )
                 },
-                onValueChange = { },
+                onValueChange = { email = it },
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                 )
@@ -108,14 +111,22 @@ fun ForgotPassword() {
         Spacer(modifier = Modifier.height(30.dp))
         Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally, // Центрируем по горизонтали
-            verticalArrangement = Arrangement.Center // Центрируем по вертикали
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            // Кнопка "Отправить"
             Button(
-                onClick = { },
+                onClick = {
+                    if (vm.isValidEmail(email)) {
+                        showDialog = true
+                    } else {
+                        errorMessage = "Некорректный e-mail"
+                        showDialog = true
+                    }
+                },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
-                    .fillMaxWidth() // Занять всю ширину
+                    .fillMaxWidth()
                     .padding(horizontal = 55.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF48B2E7),
@@ -124,6 +135,56 @@ fun ForgotPassword() {
             ) {
                 Text("Отправить", fontSize = 14.sp)
             }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    text = {
+                        Surface(
+                            color = Color.White, // Устанавливаем белый фон
+                            shape = RoundedCornerShape(16.dp) // Закругление углов
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                // Изображение размером 24x24
+                                Image(
+                                    painter = painterResource(id = R.drawable.zabil), // Замените на ваше изображение
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(24.dp) // Устанавливаем размер изображения 24x24
+                                        .padding(bottom = 8.dp) // Отступ снизу
+                                )
+
+                                // Заголовок
+                                Text("Проверьте Ваш Email", fontSize = 20.sp, color = Color.Black)
+
+                                // Текст сообщения
+                                Text(
+                                    if (vm.isValidEmail(email)) {
+                                        "Мы отправили код восстановления пароля на вашу электронную почту."
+                                    } else {
+                                        errorMessage
+                                    },
+                                    fontSize = 16.sp,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showDialog = false }) {
+                            Text("OK")
+                        }
+                    }
+                )
+
+        }
         }
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -23,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +49,11 @@ import com.example.up.R
 fun CreateNewPassword() {
 //    val vm = viewModel { SignInViewModel() }
     var passwordVisible by remember { mutableStateOf(false) }
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -89,17 +96,16 @@ fun CreateNewPassword() {
                 // Поле для email
                 Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {  },
+                    value = password,
+                    onValueChange = { password = it },
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Управление отображением пароля
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
+                        unfocusedContainerColor = Color(0xFFF7F7F9)
                     ),
                     trailingIcon = {
-
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             val icon = if (passwordVisible) {
                                 painterResource(id = R.drawable.eye)
@@ -115,29 +121,32 @@ fun CreateNewPassword() {
                 )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Поле для пароля
-                Text("Подтверждение пароля", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
+                // Поле для подтверждения пароля
+                Text(
+                    "Подтверждение пароля",
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = {  },
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Управление отображением пароля
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
+                        unfocusedContainerColor = Color(0xFFF7F7F9)
                     ),
                     trailingIcon = {
-
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            val icon = if (passwordVisible) {
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            val icon = if (confirmPasswordVisible) {
                                 painterResource(id = R.drawable.eye)
                             } else {
                                 painterResource(id = R.drawable.eye_off)
                             }
                             Image(
                                 painter = icon,
-                                contentDescription = if (passwordVisible) "Скрыть пароль" else "Показать пароль"
+                                contentDescription = if (confirmPasswordVisible) "Скрыть пароль" else "Показать пароль"
                             )
                         }
                     }
@@ -150,11 +159,17 @@ fun CreateNewPassword() {
                 verticalArrangement = Arrangement.Center // Центрируем по вертикали
             ) {
                 Button(
-                    onClick = { },
+                    onClick = {
+                        if (password != confirmPassword) {
+                            errorMessage = "Пароли не совпадают"
+                            showDialog = true
+                        } else {
+                            // Логика для сохранения нового пароля
+                        }
+                    },
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth() // Занять всю ширину
-                        .padding(horizontal = 0.dp)
+                        .fillMaxWidth()
                         .padding(horizontal = 55.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF48B2E7),
@@ -162,6 +177,20 @@ fun CreateNewPassword() {
                     )
                 ) {
                     Text("Сохранить", fontSize = 14.sp)
+                }
+
+                // Диалоговое окно для отображения ошибки
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("Ошибка") },
+                        text = { Text(errorMessage) },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text("OK")
+                            }
+                        }
+                    )
                 }
             }
         }

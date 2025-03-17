@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -27,7 +28,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +52,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun RegisterAccount() {
     val vm = viewModel { RegisterAccountViewModel() }
     var isChecked by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -112,17 +118,21 @@ fun RegisterAccount() {
                     Spacer(modifier = Modifier.height(10.dp))
 
                     // Поле для email
-                    Text("Email", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
-                    OutlinedTextField(
-                        value = vm.userEmail,
-                        shape = RoundedCornerShape(16.dp),
-                        textStyle = TextStyle(fontSize = 18.sp),
-                        placeholder = { Text("xyz@gmail.com", fontSize = 15.sp, color = Color(0xFF6A6A6A)) }, // Исправлено на 'color'
-                        onValueChange = {  newEmail -> vm.userEmail = newEmail},
-                        colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
+                    Column(modifier = Modifier.padding(0.dp)) {
+                        Text("Email", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
+                        OutlinedTextField(
+                            value = vm.userEmail,
+                            shape = RoundedCornerShape(16.dp),
+                            textStyle = TextStyle(fontSize = 18.sp),
+                            placeholder = { Text("xyz@gmail.com", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
+                            onValueChange = { newEmail ->
+                                vm.userEmail = newEmail
+                            },
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = Color(0xFFF7F7F9)
+                            )
                         )
-                    )
+                    }
                 Spacer(modifier = Modifier.height(10.dp))
 
                     // Поле для пароля
@@ -171,11 +181,18 @@ fun RegisterAccount() {
                 Spacer(modifier = Modifier.height(30.dp))
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally, // Центрируем по горизонтали
-                    verticalArrangement = Arrangement.Center // Центрируем по вертикали
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Button(
-                        onClick = { vm.onSignUpEmail() },
+                        onClick = {
+                            if (!vm.isValidEmail(vm.userEmail)) {
+                                errorMessage = "Некорректный email"
+                                showDialog = true
+                            } else {
+                                vm.onSignUpEmail()
+                            }
+                        },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth() // Занять всю ширину
@@ -187,6 +204,29 @@ fun RegisterAccount() {
                     ) {
                         Text("Зарегистрироваться", fontSize = 14.sp)
                     }
+                    Spacer(modifier = Modifier.height(30.dp)) // Пробел между кнопкой и текстом
+
+                    Text(
+                        text = "Есть аккаунт? Войти",
+                        fontSize = 16.sp,
+                        color = Color(0xFF707B81),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
+                // Диалоговое окно для отображения ошибки
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("Ошибка") },
+                        text = { Text(errorMessage) },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text("OK")
+                            }
+                        }
+                    )
 
                     Spacer(modifier = Modifier.height(30.dp)) // Пробел между кнопкой и текстом
 

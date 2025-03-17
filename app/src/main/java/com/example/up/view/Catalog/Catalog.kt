@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,6 +56,8 @@ import com.example.up.model.products
 @Composable
 fun Catalog() {
     val vm = viewModel { CatalogViewModel() }
+    val selectedCategories = remember { mutableStateListOf<String>() }
+
     LaunchedEffect(Unit) {
         vm.getProducts()
         vm.getCatrgories()
@@ -62,52 +67,33 @@ fun Catalog() {
             .fillMaxSize()
             .background(Color.White)
             .padding(14.dp),
-        verticalArrangement = Arrangement.Top, // Изменено на Arrangement.Top
+        verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start // Выравнивание по левому краю
+            horizontalArrangement = Arrangement.SpaceBetween // Распределение пространства между элементами
         ) {
             IconButton(
                 onClick = {},
                 modifier = Modifier.size(32.dp)
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.menu), // Замените на ваш файл menu.png
+                    painter = painterResource(id = R.drawable.strela),
                     contentDescription = "Меню",
-                    modifier = Modifier.fillMaxSize() // Этот модификатор обеспечит, что изображение заполнит кнопку
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
-
         Text(
-            text = "Главная",
+            text = "Outdoor",
             fontSize = 32.sp,
             color = Color.Black,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        OutlinedTextField(
-            value = "",
-            shape = RoundedCornerShape(16.dp),
-            textStyle = TextStyle(fontSize = 18.sp),
-            placeholder = {
-                Text(
-                    "поиск",
-                    fontSize = 15.sp,
-                    color = Color(0xFF6A6A6A)
-                )
-            },
-            onValueChange = { },
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
-            )
-        )
-
-        Spacer(modifier = Modifier.height(10.dp)) // Отступ перед текстом
-
+        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "Категории",
             fontSize = 16.sp,
@@ -115,47 +101,84 @@ fun Catalog() {
             modifier = Modifier
                 .align(Alignment.Start)
         )
-        Box {
-            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
-                LazyColumn {
-                    items(
-                        vm.products,
-                        key = { products -> products.id },
-                    ) { products ->
-                        val imageUrl = products.photo ?: "eye.png"
-                        Spacer(modifier = Modifier.height(20.dp))
-                        val imageState = rememberAsyncImagePainter(
-                            model = ImageRequest.Builder(LocalContext.current).data(products.photo)
-                                .size(coil.size.Size.ORIGINAL).build()
-                        ).state
-                        if (imageState is AsyncImagePainter.State.Error) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)
+        ) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(vm.categories, key = { it.id }) { category ->
+                    Button(
+                        onClick = {
+                            // Если кнопка уже выбрана, убираем ее из списка, иначе добавляем
+                            if (selectedCategories.contains(category.id)) {
+                                selectedCategories.remove(category.id)
+                            } else {
+                                selectedCategories.add(category.id)
                             }
-                        }
-                        if (imageState is AsyncImagePainter.State.Success) {
-                            Image(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp),
-                                painter = imageState.painter,
-                                contentDescription = "",
-                                contentScale = ContentScale.Crop
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedCategories.contains(category.id)) Color(0xFF48B2E7) else Color.White
+                        )
+                    ) {
+                        Text(text = category.title, color = if (selectedCategories.contains(category.id)) Color.White else Color.Black)
+                    }
+                }
+            }
+            Box {
+                Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
+                    LazyColumn {
+                        items(
+                            vm.products,
+                            key = { products -> products.id },
+                        ) { products ->
+                            val imageUrl = products.photo ?: "eye.png"
+                            Spacer(modifier = Modifier.height(20.dp))
+                            val imageState = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(products.photo)
+                                    .size(coil.size.Size.ORIGINAL).build()
+                            ).state
+                            if (imageState is AsyncImagePainter.State.Error) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                            IconButton(
+                                onClick = {},
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.like),
+                                    contentDescription = "like",
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            if (imageState is AsyncImagePainter.State.Success) {
+                                Image(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                                    painter = imageState.painter,
+                                    contentDescription = "",
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                            Text(
+                                products.title,
+                                modifier = Modifier.padding(8.dp),
+                            )
+                            Text(
+                                products.cost.toString(),
+                                modifier = Modifier.padding(8.dp),
                             )
                         }
-                        Text(
-                            products.title,
-                            modifier = Modifier.padding(8.dp),
-                        )
-                        Text(
-                            products.title,
-                            modifier = Modifier.padding(8.dp),
-                        )
                     }
                 }
             }

@@ -77,4 +77,5 @@ dependencies {
 
     implementation("io.github.jan-tennert.supabase:storage-kt:2.6.1")
     implementation("io.coil-kt:coil-compose:2.2.0")
+
 }

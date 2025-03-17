@@ -8,10 +8,16 @@
       <SelectionState runConfigName="SignIn">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="Catalog">
+      <SelectionState runConfigName="Home">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="RegisterAccount">
+      <SelectionState runConfigName="CreateNewPassword">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="ForgotPassword">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="Catalog">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
