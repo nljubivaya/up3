@@ -56,7 +56,7 @@ import com.example.up.model.products
 
 
 @Composable
-fun Home(navHostController: NavHostController) {
+fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
     val vm = viewModel { HomeViewModel() }
     val selectedCategories = remember { mutableStateListOf<String>() }
 
@@ -77,7 +77,8 @@ fun Home(navHostController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceBetween // Распределение пространства между элементами
         ) {
             IconButton(
-                onClick = {},
+                onClick = {
+                },
                 modifier = Modifier.size(32.dp)
             ) {
                 Image(
@@ -95,7 +96,7 @@ fun Home(navHostController: NavHostController) {
                 Image(
                     painter = painterResource(id = R.drawable.korzina),
                     contentDescription = "Корзина",
-                    modifier = Modifier.fillMaxSize() // Этот модификатор обеспечит, что изображение заполнит кнопку
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -142,7 +143,6 @@ fun Home(navHostController: NavHostController) {
                 items(vm.categories, key = { it.id }) { category ->
                     Button(
                         onClick = {
-                            // Если кнопка уже выбрана, убираем ее из списка, иначе добавляем
                             if (selectedCategories.contains(category.id)) {
                                 selectedCategories.remove(category.id)
                             } else {
@@ -198,7 +198,7 @@ fun Home(navHostController: NavHostController) {
                             }
                         }
                         IconButton(
-                            onClick = {},
+                            onClick = {vm.addFavourite(products.id, onDismissRequest)},
                             modifier = Modifier.size(32.dp)
                         ) {
                             Image(
@@ -251,7 +251,11 @@ fun Home(navHostController: NavHostController) {
                         )
                     }
                     IconButton(
-                        onClick = {},
+                        onClick = {navHostController.navigate("Favourite") {
+                            popUpTo("Favourite") {
+                                inclusive = true
+                            }
+                        } },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Image(
@@ -281,7 +285,11 @@ fun Home(navHostController: NavHostController) {
                         )
                     }
                     IconButton(
-                        onClick = {},
+                        onClick = {navHostController.navigate("Profile") {
+                            popUpTo("Profile") {
+                                inclusive = true
+                            }
+                        } },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Image(

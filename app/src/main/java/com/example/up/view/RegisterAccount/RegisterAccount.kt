@@ -236,7 +236,7 @@ fun RegisterAccount(navHostController: NavHostController) {
                                     popUpTo("SignIn") {
                                         inclusive = true
                                     }
-                                }}) // Обрабатываем клик
+                                }})
                         )
                     }
 

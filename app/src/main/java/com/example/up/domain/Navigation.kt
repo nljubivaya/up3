@@ -28,23 +28,22 @@ fun Navigation() {
     val navHostController = rememberNavController()
     var isPreviewVisible by remember { mutableStateOf(true) }
 
-    // Используем LaunchedEffect для управления переходом
     LaunchedEffect(isPreviewVisible) {
         if (isPreviewVisible) {
-            delay(2500) // Задержка в 2.5 секунды
-            isPreviewVisible = false // Убираем экран предварительного просмотра
+            delay(1500)
+            isPreviewVisible = false
             navHostController.navigate("RegisterAccount") {
-                popUpTo("preview") { inclusive = true } // Удаляем экран preview из стека навигации
+                popUpTo("preview") { inclusive = true }
             }
         }
     }
 
     NavHost(
         navController = navHostController,
-        startDestination = if (isPreviewVisible) "preview" else "RegisterAccount" // Устанавливаем начальную точку на preview
+        startDestination = if (isPreviewVisible) "preview" else "RegisterAccount"
     ) {
         composable("preview") {
-            preview(navHostController) // Обратите внимание на правильное имя функции
+            preview(navHostController)
         }
         composable("RegisterAccount") {
             RegisterAccount(navHostController)
@@ -70,7 +69,7 @@ fun Navigation() {
         }
 
         composable("Home") {
-            Home(navHostController)
+            Home(navHostController, onDismissRequest = {})
         }
 
         composable("LoyaltyCard") {

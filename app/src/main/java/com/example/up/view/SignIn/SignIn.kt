@@ -78,7 +78,11 @@ fun SignIn(navHostController: NavHostController) {
                 horizontalArrangement = Arrangement.Start // Выравнивание по левому краю
             ) {
                 IconButton(
-                    onClick = {},
+                    onClick = {  navHostController.navigate("RegisterAccount") {
+                        popUpTo("RegisterAccount") {
+                            inclusive = true
+                        }
+                    } },
                     modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
@@ -153,15 +157,20 @@ fun SignIn(navHostController: NavHostController) {
                         }
                         )
                 // Кликабельный текст "Восстановить"
-                Spacer(modifier = Modifier.height(10.dp)) // Отступ перед текстом
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Восстановить",
                     fontSize = 12.sp,
                     color = Color(0xFF707B81),
                     modifier = Modifier
-                        .align(Alignment.End) // Выравнивание по правому краю
-                        .clickable {  }
+                        .align(Alignment.End)
+                        .clickable {
+                            navHostController.navigate("ForgotPassword") {
+                                popUpTo("ForgotPassword") { inclusive = true }
+                            }
+                        }
                 )
+
             }
             Spacer(modifier = Modifier.height(30.dp))
             Column(
@@ -179,7 +188,7 @@ fun SignIn(navHostController: NavHostController) {
                             errorMessage = "Некорректный email"
                             showDialog = true
                         } else {
-                            vm.onSignInEmailPassword()
+                            vm.onSignInEmailPassword(navHostController)
                         }
                     },
                     shape = RoundedCornerShape(16.dp),
@@ -209,14 +218,31 @@ fun SignIn(navHostController: NavHostController) {
                 }
 
                 Spacer(modifier = Modifier.height(50.dp)) // Пробел между кнопкой и текстом
-
-                Text(
-                    text = "Вы впервые? Создать",
-                    fontSize = 16.sp,
-                    color = Color(0xFF707B81),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                Row(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Вы впервые? ",
+                        fontSize = 16.sp,
+                        color = Color(0xFF707B81),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Создать",
+                        fontSize = 16.sp,
+                        color = Color(0xFF007BFF),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                navHostController.navigate("RegisterAccount") {
+                                    popUpTo("RegisterAccount") {
+                                        inclusive = true
+                                    }
+                                }
+                            })
+                    )
+                }
             }
 
         }

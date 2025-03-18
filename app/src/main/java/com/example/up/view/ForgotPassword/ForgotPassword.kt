@@ -62,7 +62,13 @@ fun ForgotPassword(navHostController: NavHostController) {
             horizontalArrangement = Arrangement.Start // Выравнивание по левому краю
         ) {
             IconButton(
-                onClick = {},
+                onClick = {
+                    navHostController.navigate("SignIn") {
+                        popUpTo("SignIn") {
+                            inclusive = true
+                        }
+                    }
+                },
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(

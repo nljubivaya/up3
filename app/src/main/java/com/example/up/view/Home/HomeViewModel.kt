@@ -19,6 +19,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.up.model.AddFavourite
+import io.github.jan.supabase.gotrue.auth
 import io.ktor.websocket.Frame
 
 
@@ -26,7 +28,24 @@ class HomeViewModel : ViewModel(){
     var products by mutableStateOf<List<products>>(listOf())
     var categories by mutableStateOf<List<categories>>(listOf())
 
-
+    fun addFavourite(id: String, onDismissRequest: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val user = Constant.supabase.auth.currentUserOrNull()
+                if (user != null) {
+                    Constant.supabase.from("favourite").insert(
+                        AddFavourite(
+                            product_id = id,
+                            user_id = user.id
+                        )
+                    )
+                    onDismissRequest()
+                }
+            } catch (e: Exception) {
+                Log.d("add", e.message.toString())
+            }
+        }
+    }
 
     fun getProducts() {
         viewModelScope.launch {
