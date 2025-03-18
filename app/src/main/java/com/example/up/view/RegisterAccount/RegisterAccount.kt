@@ -46,14 +46,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 
-@Preview
 @Composable
-fun RegisterAccount() {
+fun RegisterAccount(navHostController: NavHostController) {
     val vm = viewModel { RegisterAccountViewModel() }
     var isChecked by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var isSignedUp by remember { mutableStateOf(false) }
+    LaunchedEffect(isSignedUp) {
+        if (isSignedUp) {
+            navHostController.navigate("SignIn") {
+                popUpTo("SignIn") {
+                    inclusive = true
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -190,7 +200,8 @@ fun RegisterAccount() {
                                 errorMessage = "Некорректный email"
                                 showDialog = true
                             } else {
-                                vm.onSignUpEmail()
+                                vm.onSignUpEmail(controller = navHostController)
+                                isSignedUp = true
                             }
                         },
                         shape = RoundedCornerShape(16.dp),
@@ -205,14 +216,30 @@ fun RegisterAccount() {
                         Text("Зарегистрироваться", fontSize = 14.sp)
                     }
                     Spacer(modifier = Modifier.height(30.dp)) // Пробел между кнопкой и текстом
+                    Row(
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Есть аккаунт? ",
+                            fontSize = 16.sp,
+                            color = Color(0xFF707B81),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = "Войти",
+                            fontSize = 16.sp,
+                            color = Color(0xFF007BFF),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .clickable(onClick = {navHostController.navigate("SignIn") {
+                                    popUpTo("SignIn") {
+                                        inclusive = true
+                                    }
+                                }}) // Обрабатываем клик
+                        )
+                    }
 
-                    Text(
-                        text = "Есть аккаунт? Войти",
-                        fontSize = 16.sp,
-                        color = Color(0xFF707B81),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
                 }
 
                 // Диалоговое окно для отображения ошибки
@@ -230,13 +257,6 @@ fun RegisterAccount() {
 
                     Spacer(modifier = Modifier.height(30.dp)) // Пробел между кнопкой и текстом
 
-                    Text(
-                        text = "Есть аккаунт? Войти",
-                        fontSize = 16.sp,
-                        color = Color(0xFF707B81),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
                 }
 
             }

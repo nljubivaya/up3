@@ -46,15 +46,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
 
-@Preview
 @Composable
-fun Catalog() {
+fun Catalog(navHostController: NavHostController) {
     val vm = viewModel { CatalogViewModel() }
     val selectedCategories = remember { mutableStateListOf<String>() }
 

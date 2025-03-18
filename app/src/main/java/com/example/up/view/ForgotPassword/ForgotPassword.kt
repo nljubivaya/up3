@@ -39,11 +39,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.up.R
 
-@Preview
 @Composable
-fun ForgotPassword() {
+fun ForgotPassword(navHostController: NavHostController) {
     val vm = viewModel { ForgotPasswordViewModel() }
     var email by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }

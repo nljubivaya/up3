@@ -42,13 +42,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
-fun Verification() {
+fun Verification(navHostController: NavHostController) {
 //    val vm = viewModel { RegisterAccountViewModel() }
     var timerValue by remember { mutableStateOf(60) }
     var isRunning by remember { mutableStateOf(true) }

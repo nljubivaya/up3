@@ -41,12 +41,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.up.R
 
 
-@Preview
+
 @Composable
-fun CreateNewPassword() {
+fun CreateNewPassword(navHostController: NavHostController) {
 //    val vm = viewModel { SignInViewModel() }
     var passwordVisible by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }

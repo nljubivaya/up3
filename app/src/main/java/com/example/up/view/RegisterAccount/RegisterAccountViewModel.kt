@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.example.up.domain.Constant
 import com.example.up.model.profiles
 import io.github.jan.supabase.gotrue.auth
@@ -22,8 +23,7 @@ class RegisterAccountViewModel:  ViewModel()  {
         val emailPattern = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{2,}$".toRegex()
         return emailPattern.matches(email)
     }
-//    controller: NavHostController
-    fun onSignUpEmail()
+    fun onSignUpEmail(controller: NavHostController)
     {
         viewModelScope.launch {
             try{
@@ -48,11 +48,11 @@ class RegisterAccountViewModel:  ViewModel()  {
                     )
                     Constant.supabase.from("users")
                         .insert(newUserData)
-//                    controller.navigate("auth") {
-//                        popUpTo("regestration") {
-//                            inclusive = true
-//                        }
-//                    }
+                    controller.navigate("SignIn") {
+                        popUpTo("RegisterAccount") {
+                            inclusive = true
+                        }
+                    }
                 }
             }
             catch (e: Exception) {

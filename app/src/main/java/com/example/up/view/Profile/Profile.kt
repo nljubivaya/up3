@@ -55,6 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -62,9 +63,8 @@ import com.example.up.R
 import com.example.up.model.products
 
 
-@Preview
 @Composable
-fun Profile() {
+fun Profile(navHostController: NavHostController) {
     var name by remember { mutableStateOf("") }
     var surname by remember { mutableStateOf("") }
     var adress by remember { mutableStateOf("") }
