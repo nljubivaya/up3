@@ -1,5 +1,9 @@
 package com.example.up.view.Profile
 
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 
@@ -27,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -35,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -61,6 +68,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
@@ -73,16 +81,73 @@ fun Profile(navHostController: NavHostController) {
     var firstname by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-    val vm = viewModel { ProfileViewModel() } // инициализация viewModel
-    vm.getUser()  // получение пользователя
+    val vm = viewModel { ProfileViewModel() }
+    vm.getUser()
     var isMenuOpen by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val barcodeBitmap = remember { mutableStateOf<Bitmap?>(null) }
+    val userId = vm.user.user_id
+    val errorMessage = remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    var profileImageUri by remember { mutableStateOf<Uri?>(null) }
+    LaunchedEffect(userId) {
+        errorMessage.value = ""
+        barcodeBitmap.value = vm.generateBarcode(userId) ?: run {
+            errorMessage.value = "Ошибка при генерации бар-кода"
+            null
+        }
 
+       // barcodeBitmap.value = vm.generateBarcode(userId)
+    }
     LaunchedEffect(vm.user) {
         name = vm.user.name
         firstname = vm.user.firstname
         address = vm.user.address
         phone = vm.user.phone
+    }
+    val context = LocalContext.current
+        // var showDialog by remember { mutableStateOf(false) }
+
+    // Обработчики для выбора изображения
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        // Обработка выбора изображения из галереи
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
+        // Обработка результата съемки с камеры
+    }
+
+    // Диалоговое окно для выбора источника изображения
+    if (showDialog) {
+        ImageSourceDialog(
+            onDismiss = { showDialog = false },
+            onGallerySelected = {
+                showDialog = false
+                launcher.launch("image/*") // Открыть галерею
+            },
+            onCameraSelected = {
+                showDialog = false
+                val photoFile = vm.createImageFile(context) // Вызов метода из ViewModel
+                cameraLauncher.launch(Uri.fromFile(photoFile))
+            }
+        )
+    }
+
+
+    // Диалоговое окно для выбора источника изображения
+    if (showDialog) {
+        ImageSourceDialog(
+            onDismiss = { showDialog = false },
+            onGallerySelected = {
+                showDialog = false
+                launcher.launch("image/*") // Открыть галерею
+            },
+            onCameraSelected = {
+                showDialog = false
+                val photoFile = vm.createImageFile(context) // Вызов метода из ViewModel
+                cameraLauncher.launch(Uri.fromFile(photoFile))
+            }
+        )
     }
 
     Column(
@@ -152,19 +217,43 @@ fun Profile(navHostController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.like),
+                painter = if (profileImageUri != null) {
+                    rememberImagePainter(profileImageUri)
+                } else {
+                    painterResource(id = R.drawable.like) // Изображение по умолчанию
+                },
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(90.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
+            // Кнопка для изменения фото профиля
+            Button(onClick = { showDialog = true }) {
+                Text("Выбрать источник изображения")
+            }
             Text(
                 text = "Ваше ФИО",
                 color = Color.Black,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
+            barcodeBitmap.value?.let {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = "Бар-код",
+                    modifier = Modifier
+                        .size(400.dp, 200.dp) // Установите нужный размер для бар-кода
+                        .padding(top = 16.dp) // Отступ сверху
+                )
+            } ?: run {
+                Text(
+                    text = errorMessage.value.ifEmpty { "Генерация бар-кода..." },
+                    color = if (errorMessage.value.isNotEmpty()) Color.Red else Color.Gray,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(30.dp))
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Имя", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
@@ -291,4 +380,31 @@ fun Profile(navHostController: NavHostController) {
             }
         }
     }
+}
+
+@Composable
+fun ImageSourceDialog(
+    onDismiss: () -> Unit,
+    onGallerySelected: () -> Unit,
+    onCameraSelected: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = "Выберите источник изображения") },
+        text = {
+            Column {
+                TextButton(onClick = onGallerySelected) {
+                    Text("Галерея")
+                }
+                TextButton(onClick = onCameraSelected) {
+                    Text("Камера")
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
 }

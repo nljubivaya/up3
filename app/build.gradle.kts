@@ -77,5 +77,9 @@ dependencies {
 
     implementation("io.github.jan-tennert.supabase:storage-kt:2.6.1")
     implementation("io.coil-kt:coil-compose:2.2.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0") // Для работы с бар-кодами
+    implementation("com.google.zxing:core:3.3.3")
+    implementation("androidx.activity:activity-ktx:1.3.1")
+
 
 }
