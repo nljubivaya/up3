@@ -92,7 +92,7 @@ fun RegisterAccount(navHostController: NavHostController) {
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start // Выравнивание по левому краю
+                    horizontalArrangement = Arrangement.Start
                 ) {
                     IconButton(
                         onClick = {},
@@ -293,8 +293,6 @@ fun RegisterAccount(navHostController: NavHostController) {
                     }
 
                 }
-
-                // Диалоговое окно для отображения ошибки
                 if (showDialog) {
                     AlertDialog(
                         onDismissRequest = { showDialog = false },

@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -39,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +64,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
+import com.example.up.view.SideMenu.SideMenu
 
 
 @Composable
@@ -71,6 +75,8 @@ fun Profile(navHostController: NavHostController) {
     var phone by remember { mutableStateOf("") }
     val vm = viewModel { ProfileViewModel() } // инициализация viewModel
     vm.getUser()  // получение пользователя
+    var isMenuOpen by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(vm.user) {
         name = vm.user.name
@@ -87,13 +93,13 @@ fun Profile(navHostController: NavHostController) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Верхняя панель с кнопками
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(
-                onClick = { /* Действие для кнопки меню */ },
+                onClick = {  isMenuOpen = !isMenuOpen},
                 modifier = Modifier.size(32.dp)
             ) {
                 Image(
@@ -101,6 +107,25 @@ fun Profile(navHostController: NavHostController) {
                     contentDescription = "Меню",
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+            if (isMenuOpen) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Gray.copy(alpha = 0.8f))
+                        .clickable { isMenuOpen = false }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(250.dp)
+                            .fillMaxHeight()
+                            .background(Color.White)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        SideMenu(navHostController)
+                    }
+                }
             }
             Text(
                 text = "Профиль",
@@ -110,17 +135,14 @@ fun Profile(navHostController: NavHostController) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             IconButton(
-                onClick = { /* Действие для кнопки редактирования */ },
+                onClick = {  },
                 modifier = Modifier.size(32.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.edit),
                     contentDescription = "Редактировать",
                     modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-
+                ) } }
         Spacer(modifier = Modifier.height(30.dp))
         Column(
             modifier = Modifier
@@ -137,7 +159,6 @@ fun Profile(navHostController: NavHostController) {
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
-
             Text(
                 text = "Ваше ФИО",
                 color = Color.Black,
@@ -146,7 +167,6 @@ fun Profile(navHostController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(30.dp))
             Column(modifier = Modifier.padding(16.dp)) {
-                // Поле для имени
                 Text("Имя", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
                     value = name,
@@ -157,16 +177,13 @@ fun Profile(navHostController: NavHostController) {
                             "xxxxxxxx",
                             fontSize = 15.sp,
                             color = Color(0xFF6A6A6A)
-                        )
-                    },
+                        ) },
                     onValueChange = { newn -> name = newn},
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
-                    )
-                )
-                Spacer(modifier = Modifier.height(16.dp)) // Отступ между текстовыми полями
+                        unfocusedContainerColor = Color(0xFFF7F7F9)
+                    ))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("Фамилия", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
-
                 OutlinedTextField(
                     value = firstname,
                     onValueChange = { newf -> firstname = newf },
@@ -174,13 +191,10 @@ fun Profile(navHostController: NavHostController) {
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("Поле 2", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF7F7F9)
-                    ),
-                    modifier = Modifier.fillMaxWidth() // Занимаем всю ширину
-                )
-                Spacer(modifier = Modifier.height(16.dp)) // Отступ между текстовыми полями
+                        unfocusedContainerColor = Color(0xFFF7F7F9)),
+                    modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("Адрес", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
-
                 OutlinedTextField(
                     value = address,
                     onValueChange = { newa -> address = newa },
@@ -190,11 +204,10 @@ fun Profile(navHostController: NavHostController) {
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF7F7F9)
                     ),
-                    modifier = Modifier.fillMaxWidth() // Занимаем всю ширину
+                    modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier = Modifier.height(16.dp)) // Отступ между текстовыми полями
+                Spacer(modifier = Modifier.height(16.dp))
                 Text("Телефон", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
-
                 OutlinedTextField(
                     value = phone,
                     onValueChange = { newp -> phone = newp},
@@ -204,7 +217,7 @@ fun Profile(navHostController: NavHostController) {
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF7F7F9)
                     ),
-                    modifier = Modifier.fillMaxWidth() // Занимаем всю ширину
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             Column(
@@ -214,13 +227,14 @@ fun Profile(navHostController: NavHostController) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Spacer(modifier = Modifier.weight(1f))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     IconButton(
-                        onClick = {},
+                        onClick = {  navHostController.navigate("Home") {
+                            popUpTo("Home") { inclusive = true }
+                        }},
                         modifier = Modifier.size(32.dp)
                     ) {
                         Image(
@@ -230,7 +244,9 @@ fun Profile(navHostController: NavHostController) {
                         )
                     }
                     IconButton(
-                        onClick = {},
+                        onClick = {  navHostController.navigate("Favourite") {
+                            popUpTo("Favourite") { inclusive = true }
+                        }},
                         modifier = Modifier.size(32.dp)
                     ) {
                         Image(
@@ -260,7 +276,9 @@ fun Profile(navHostController: NavHostController) {
                         )
                     }
                     IconButton(
-                        onClick = {},
+                        onClick = {  navHostController.navigate("Profile") {
+                            popUpTo("Profile") { inclusive = true }
+                        }},
                         modifier = Modifier.size(32.dp)
                     ) {
                         Image(

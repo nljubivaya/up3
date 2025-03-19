@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,25 +62,24 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
+import com.example.up.view.SideMenu.SideMenu
 
 @Composable
 fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
     val vm = viewModel { HomeViewModel() }
-        // val selectedCategories = remember { mutableStateListOf<String>() }
-   // var searchText by remember { mutableStateOf("") }
-    var selectedCategories by remember { mutableStateOf(mutableSetOf<String>()) }
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val filteredProducts = vm.products.filter { product ->
         (selectedCategory == null || product.category_id == selectedCategory) &&
                 product.title.contains(searchText, ignoreCase = true)
     }
-
-
     LaunchedEffect(Unit) {
         vm.getProducts()
         vm.getCatrgories()
     }
+    var isMenuOpen by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -91,12 +92,31 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+            IconButton(onClick = { isMenuOpen = !isMenuOpen}, modifier = Modifier.size(32.dp)) {
                 Image(
                     painter = painterResource(id = R.drawable.menu),
                     contentDescription = "Меню",
                     modifier = Modifier.fillMaxSize()
                 )
+            }
+            if (isMenuOpen) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Gray.copy(alpha = 0.8f))
+                        .clickable { isMenuOpen = false }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .width(250.dp)
+                            .fillMaxHeight()
+                            .background(Color.White)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        SideMenu(navHostController)
+                    }
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
@@ -107,7 +127,6 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                 )
             }
         }
-
         Text(
             text = "Главная",
             fontSize = 32.sp,
@@ -175,15 +194,16 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                     modifier = Modifier
                         .padding(end = 16.dp)
                         .clickable {
-                            navHostController.navigate("SignIn") {
-                                popUpTo("SignIn") {
+                            navHostController.navigate("Catalog") {
+                                popUpTo("Catalog") {
                                     inclusive = true
                                 }
                             }
                         }
                 )
             }
-            LazyColumn {
+            LazyColumn ( modifier = Modifier.weight(1f)
+                ) {
                 items(filteredProducts.take(2), key = { it.id }) { product ->
                     val imageUrl = product.photo ?: "eye.png"
                     val imageState = rememberAsyncImagePainter(
@@ -195,7 +215,6 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
-                        //  elevation = 4.dp,
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Column(
@@ -254,35 +273,30 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.Start
                     ) {
-                        // Текст "Акции"
                         Row(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(bottom = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween // Распределяем элементы по краям
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            // Текст "Акции"
                             Text(
                                 text = "Акции",
                                 fontSize = 16.sp,
                                 color = Color(0xFF2B2B2B),
-                                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp) // Отступ слева и снизу
+                                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
                             )
-
-                            // Текст "Все"
                             Text(
                                 text = "Все",
                                 fontSize = 16.sp,
-                                color = Color(0xFF48B2E7), // Цвет текста "Все"
+                                color = Color(0xFF48B2E7),
                                 modifier = Modifier
                                     .padding(end = 16.dp)
                                     .clickable {
-                                        // Обработка нажатия на текст "Все"
                                     }
                             )
                         }
                         Image(
-                            painter = painterResource(id = R.drawable.akzii), // Замените на актуальное изображение
+                            painter = painterResource(id = R.drawable.akzii),
                             contentDescription = "Акции",
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -290,7 +304,7 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                                 .clip(RoundedCornerShape(8.dp))
                                 .background(Color.Gray)
                                 .padding(8.dp)
-                                .align(Alignment.CenterHorizontally) // Центрируем изображение
+                                .align(Alignment.CenterHorizontally)
                         )
                     }
                     Row(

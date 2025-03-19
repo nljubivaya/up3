@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -104,9 +105,9 @@ fun SideMenu(navHostController: NavHostController) {
                         color = Color.White,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    if (index < icons.size ) { // Проверяем, чтобы не добавлять иконку после последнего элемента
+                    if (index < icons.size ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic1), // Замените на вашу вторую иконку, если нужно
+                            painter = painterResource(id = R.drawable.ic1),
                             contentDescription = "Icon 2",
                             tint = Color.White,
                             modifier = Modifier.size(24.dp)
@@ -119,22 +120,29 @@ fun SideMenu(navHostController: NavHostController) {
             item {
                 Divider(color = Color.White, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
             }
-
-            // Последняя строка с иконками "Настройки"
-            item {
+           item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.bye),
-                        contentDescription = "Выйти",
-                        tint = Color.White,
+                    IconButton(
+                        onClick = {
+                            navHostController.navigate("SignIn") {
+                                popUpTo("SignIn") { inclusive = true }
+                            }
+                        },
                         modifier = Modifier.size(24.dp)
-                    )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.bye),
+                            contentDescription = "Выйти",
+                            tint = Color.White
+                        )
+                    }
+
                     Text(
-                        text = labels.last(), // Текст "Настройки"
+                        text = "Выйти",
                         color = Color.White,
                         modifier = Modifier.padding(start = 8.dp)
                     )
