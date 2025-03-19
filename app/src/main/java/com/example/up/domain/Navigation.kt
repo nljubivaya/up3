@@ -33,7 +33,7 @@ fun Navigation() {
             delay(1500)
             isPreviewVisible = false
             navHostController.navigate("RegisterAccount") {
-                popUpTo("preview") { inclusive = true }
+                popUpTo("RegisterAccount") { inclusive = true }
             }
         }
     }

@@ -79,7 +79,6 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
     }
     var isMenuOpen by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-
     Column(
         modifier = Modifier
             .fillMaxSize()

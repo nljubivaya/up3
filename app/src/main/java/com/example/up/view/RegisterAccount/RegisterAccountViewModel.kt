@@ -23,43 +23,44 @@ class RegisterAccountViewModel:  ViewModel()  {
         val emailPattern = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{2,}$".toRegex()
         return emailPattern.matches(email)
     }
-
-    fun onSignUpEmail(controller: NavHostController, onResult: (Boolean) -> Unit)
-    {
+    //, onResult: (Boolean) -> Unit
+    fun onSignUpEmail(controller: NavHostController) {
         viewModelScope.launch {
-            try{
-
-                Constant.supabase.auth.signUpWith(Email) {
+            try {
+                // Регистрация пользователя
+                val response = Constant.supabase.auth.signUpWith(Email) {
                     email = userEmail
                     password = userPassword
                 }
-                val user = Constant.supabase.auth.currentUserOrNull()
-                if(user != null) {
 
+                // Проверка успешной регистрации
+                val user = Constant.supabase.auth.currentUserOrNull()
+                if (user != null) {
+                    // Создание нового пользователя
                     val newUserData = profiles(
-                        id = "",
-                        user_id = user.id,
-                        photo = "",
-                        firstname = "",
-                        lastname = "",
-                        address = "",
-                        phone = "",
-                        name = userName,
-                        email = userEmail,
-                        password = userPassword
+                    id = "", // Замените на реальный ID, если необходимо
+                    user_id = user.id,
+                    photo = "",
+                    firstname = "",
+                    lastname = "",
+                    address = "",
+                    phone = "",
+                    name = userName,
+                    email = userEmail,
+                    password = userPassword
                     )
-                    Constant.supabase.from("users")
-                        .insert(newUserData)
-                    controller.navigate("SignIn") {
-                        popUpTo("SignIn") {
-                            inclusive = true
-                        }
-                    }
+
+                    // Вставка данных в таблицы
+                    Constant.supabase.from("users").insert(newUserData)
+                    Constant.supabase.from("profiles").insert(newUserData)
+
+                    // Успешная регистрация
+                    // Здесь вы можете вызвать onResult(true) или другую логику, если нужно
                 }
-            }
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 println("Error")
                 println(e.message.toString())
+                // Здесь вы можете показать ошибку пользователю, если необходимо
             }
         }
     }

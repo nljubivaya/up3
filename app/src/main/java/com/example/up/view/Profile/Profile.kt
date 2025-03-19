@@ -96,9 +96,7 @@ fun Profile(navHostController: NavHostController) {
             errorMessage.value = "Ошибка при генерации бар-кода"
             null
         }
-
-       // barcodeBitmap.value = vm.generateBarcode(userId)
-    }
+     }
     LaunchedEffect(vm.user) {
         name = vm.user.name
         firstname = vm.user.firstname
@@ -106,15 +104,11 @@ fun Profile(navHostController: NavHostController) {
         phone = vm.user.phone
     }
     val context = LocalContext.current
-        // var showDialog by remember { mutableStateOf(false) }
 
-    // Обработчики для выбора изображения
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        // Обработка выбора изображения из галереи
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
-        // Обработка результата съемки с камеры
     }
 
     // Диалоговое окно для выбора источника изображения
@@ -132,9 +126,6 @@ fun Profile(navHostController: NavHostController) {
             }
         )
     }
-
-
-    // Диалоговое окно для выбора источника изображения
     if (showDialog) {
         ImageSourceDialog(
             onDismiss = { showDialog = false },
@@ -144,12 +135,11 @@ fun Profile(navHostController: NavHostController) {
             },
             onCameraSelected = {
                 showDialog = false
-                val photoFile = vm.createImageFile(context) // Вызов метода из ViewModel
+                val photoFile = vm.createImageFile(context)
                 cameraLauncher.launch(Uri.fromFile(photoFile))
             }
         )
     }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -274,7 +264,7 @@ fun Profile(navHostController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Фамилия", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
-                    value = firstname,
+                    value = vm.user.firstname,
                     onValueChange = { newf -> firstname = newf },
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),

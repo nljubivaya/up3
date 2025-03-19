@@ -75,7 +75,9 @@ fun Catalog(navHostController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceBetween // Распределение пространства между элементами
         ) {
             IconButton(
-                onClick = {},
+                onClick = { navHostController.navigate("Home") {
+                    popUpTo("Home") { inclusive = true }
+                }},
                 modifier = Modifier.size(32.dp)
             ) {
                 Image(
@@ -111,7 +113,6 @@ fun Catalog(navHostController: NavHostController) {
                 items(vm.categories, key = { it.id }) { category ->
                     Button(
                         onClick = {
-                            // Если кнопка уже выбрана, убираем ее из списка, иначе добавляем
                             if (selectedCategories.contains(category.id)) {
                                 selectedCategories.remove(category.id)
                             } else {
@@ -133,7 +134,6 @@ fun Catalog(navHostController: NavHostController) {
                             vm.products,
                             key = { products -> products.id },
                         ) { products ->
-                            val imageUrl = products.photo ?: "eye.png"
                             Spacer(modifier = Modifier.height(20.dp))
                             val imageState = rememberAsyncImagePainter(
                                 model = ImageRequest.Builder(LocalContext.current)
@@ -179,6 +179,62 @@ fun Catalog(navHostController: NavHostController) {
                                 modifier = Modifier.padding(8.dp),
                             )
                         }
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(bottom = 25.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.home),
+                            contentDescription = "дом",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            navHostController.navigate("Favourite") {
+                                popUpTo("Favourite") { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.like),
+                            contentDescription = "Лайк",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.korzina),
+                            contentDescription = "Корзина",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                        Image(
+                            painter = painterResource(id = R.drawable.zvonok),
+                            contentDescription = "звонок",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            navHostController.navigate("Profile") {
+                                popUpTo("Profile") { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.human),
+                            contentDescription = "Человек",
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }

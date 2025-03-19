@@ -86,20 +86,33 @@ fun SideMenu(navHostController: NavHostController) {
         // Список элементов с иконками и текстом
         LazyColumn(
             modifier = Modifier.padding(top = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(30.dp) // Отступ между строками
+            verticalArrangement = Arrangement.spacedBy(30.dp)
         ) {
-            items(icons.indices.toList()) { index -> // Преобразуем Indices в список
+            items(icons.indices.toList()) { index ->
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween // Распределяем элементы по ширине
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        painter = painterResource(id = icons[index]),
-                        contentDescription = "Icon ${index + 1}",
-                        tint = Color.White,
+                    IconButton(
+                        onClick = {
+                            when (index) {
+                                0 -> navHostController.navigate("Profile") // Профиль
+                                1 -> navHostController.navigate("") // Корзина
+                                2 -> navHostController.navigate("Favorite") // Избранное
+                                3 -> navHostController.navigate("") // Заказы
+                                4 -> navHostController.navigate("") // Уведомления
+                                5 -> navHostController.navigate("") // Настройки
+                            }
+                        },
                         modifier = Modifier.size(24.dp)
-                    )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = icons[index]),
+                            contentDescription = "Icon ${index + 1}",
+                            tint = Color.White
+                        )
+                    }
                     Text(
                         text = labels[index],
                         color = Color.White,
@@ -115,8 +128,6 @@ fun SideMenu(navHostController: NavHostController) {
                     }
                 }
             }
-
-            // Разделительная черта перед последней строкой
             item {
                 Divider(color = Color.White, thickness = 1.dp, modifier = Modifier.padding(vertical = 16.dp))
             }
@@ -140,7 +151,6 @@ fun SideMenu(navHostController: NavHostController) {
                             tint = Color.White
                         )
                     }
-
                     Text(
                         text = "Выйти",
                         color = Color.White,

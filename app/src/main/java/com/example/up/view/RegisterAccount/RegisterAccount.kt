@@ -219,55 +219,37 @@ fun RegisterAccount(navHostController: NavHostController) {
                     Button(
                         onClick = {
                             if (!vm.isValidEmail(vm.userEmail)) {
-                                dialogMessage = "Некорректный email"
+                                errorMessage = "Некорректный email"
                                 showDialog = true
                             } else {
-                                vm.onSignUpEmail(navHostController) { success ->
-                                    if (success) {
-                                        dialogMessage = "Регистрация успешна!"
-                                        showDialog = true
-                                    } else {
-                                        dialogMessage = "Ошибка регистрации. Попробуйте еще раз."
-                                        showDialog = true
-                                    }
+                                vm.onSignUpEmail(navHostController)
+                                navHostController.navigate("SignIn") {
+                                    popUpTo("SignIn")
                                 }
-                            }
+                                }
                         },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 55.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF2B6B8B),
-                            contentColor = Color.White
-                        ),
-                        enabled = isButtonEnabled
-                    ) {
-                        Text("Зарегистрироваться", fontSize = 14.sp)
-                    }
-
-                    // Диалоговое окно
-                    if (showDialog) {
-                        AlertDialog(
-                            onDismissRequest = { showDialog = false },
-                            title = { Text("Сообщение") },
-                            text = { Text(dialogMessage) },
-                            confirmButton = {
-                                Button(onClick = {
-                                    showDialog = false
-                                    if (dialogMessage == "Регистрация успешна!") {
-                                        navHostController.navigate("SignIn") {
-                                            popUpTo("SignIn") { inclusive = true }
-                                        }
-                                    }
-                                }) {
-                                    Text("OK")
-                                }
+                                enabled = isButtonEnabled
+                            ) {
+                                Text("Зарегистрироваться", fontSize = 14.sp)
                             }
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(30.dp))
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text("Ошибка") },
+                        text = { Text(errorMessage) },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(30.dp))
                     Row(
                         modifier = Modifier.padding(bottom = 16.dp),
                         verticalAlignment = Alignment.CenterVertically

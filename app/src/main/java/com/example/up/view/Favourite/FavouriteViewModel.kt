@@ -44,7 +44,7 @@ class FavouriteViewModel: ViewModel(){
         }
     }
 
-    fun deleteFavourite(id: Int) {
+    fun deleteFavourite(id: String) {
         viewModelScope.launch {
             try {
                 Log.d("id", id.toString())

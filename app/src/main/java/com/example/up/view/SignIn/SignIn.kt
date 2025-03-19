@@ -75,7 +75,7 @@ fun SignIn(navHostController: NavHostController) {
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start // Выравнивание по левому краю
+                horizontalArrangement = Arrangement.Start
             ) {
                 IconButton(
                     onClick = {  navHostController.navigate("RegisterAccount") {

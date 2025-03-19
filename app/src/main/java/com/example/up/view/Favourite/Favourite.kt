@@ -15,18 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,8 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,8 +65,19 @@ fun Favourite(navHostController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Кнопка меню
-            IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                Image(painter = painterResource(id = R.drawable.menu), contentDescription = "Меню", modifier = Modifier.fillMaxSize())
+            IconButton(
+                onClick = {  navHostController.navigate("RegisterAccount") {
+                    popUpTo("RegisterAccount") {
+                        inclusive = true
+                    }
+                } },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Закрыть",
+                    tint = Color.Black
+                )
             }
             Spacer(modifier = Modifier.weight(1f))
             // Кнопка корзины
@@ -150,7 +156,7 @@ fun Favourite(navHostController: NavHostController) {
                             IconButton(
                                 onClick = {
                                     // Вызов метода удаления из избранного
-                                    // vm.deleteFavourite(favourite.id)
+                                     vm.deleteFavourite(favourite.id)
                                 },
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -161,9 +167,69 @@ fun Favourite(navHostController: NavHostController) {
                                 )
                             }
                         }
+
                     }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 25.dp), // Отступ снизу
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.home),
+                        contentDescription = "дом",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        navHostController.navigate("Favourite") {
+                            popUpTo("Favourite") { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.like),
+                        contentDescription = "Лайк",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.korzina),
+                        contentDescription = "Корзина",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.zvonok),
+                        contentDescription = "звонок",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                IconButton(
+                    onClick = {
+                        navHostController.navigate("Profile") {
+                            popUpTo("Profile") { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.human),
+                        contentDescription = "Человек",
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
     }
 }
+
+
