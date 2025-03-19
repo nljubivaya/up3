@@ -33,19 +33,30 @@ import com.example.up.R
 fun preview(navHostController: NavHostController) {
     // Устанавливаем цвет фона
     val backgroundColor = Color(0xFF48B2E7)
-
-    // Используем Box для размещения элементов
+// Используем Box для размещения элементов
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor), // Устанавливаем фон
         contentAlignment = Alignment.Center // Центрируем содержимое
     ) {
-        // Отображаем изображение
+        // Отображаем первое изображение
         Image(
             painter = painterResource(id = R.drawable.preview),
             contentDescription = "Preview Image",
             modifier = Modifier.size(200.dp)
         )
+
+        // Вложенный Box для второго изображения
+        Box(
+            modifier = Modifier.size(100.dp) // Размер второго изображения
+        ) {
+            // Отображаем второе изображение
+            Image(
+                painter = painterResource(id = R.drawable.toprew),
+                contentDescription = "Toprew Image",
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }

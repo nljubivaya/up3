@@ -55,6 +55,8 @@ fun RegisterAccount(navHostController: NavHostController) {
     var showDialog by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var isSignedUp by remember { mutableStateOf(false) }
+    var isButtonEnabled by remember { mutableStateOf(false) }
+
     LaunchedEffect(isSignedUp) {
         if (isSignedUp) {
             navHostController.navigate("SignIn") {
@@ -167,17 +169,15 @@ fun RegisterAccount(navHostController: NavHostController) {
                             modifier = Modifier
                                 .size(24.dp)
                                 .background(
-                                    color = if (isChecked) Color.Green else Color.Transparent,
+                                    color = if (isChecked) Color(0xFF48B2E7) else Color.Transparent, // Цвет кружка при нажатии
                                     shape = CircleShape
                                 )
                                 .border(1.dp, Color(0xFF707B81), CircleShape) // Обводка
-                                .clickable { isChecked = !isChecked } // Переключение состояния
-                        ) {
-                            if (isChecked) {
-
-                                  }
-                        }
-
+                                .clickable {
+                                    isChecked = !isChecked // Переключение состояния
+                                    isButtonEnabled = isChecked // Изменяем состояние кнопки в зависимости от состояния кружка
+                                }
+                        )
                         Spacer(modifier = Modifier.width(8.dp)) // Отступ между полем и текстом
 
                         Text(
@@ -211,11 +211,12 @@ fun RegisterAccount(navHostController: NavHostController) {
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF2B6B8B),
                             contentColor = Color.White
-                        )
+                        ),
+                        enabled = isButtonEnabled // Устанавливаем состояние кнопки
                     ) {
                         Text("Зарегистрироваться", fontSize = 14.sp)
                     }
-                    Spacer(modifier = Modifier.height(30.dp)) // Пробел между кнопкой и текстом
+                    Spacer(modifier = Modifier.height(30.dp))
                     Row(
                         modifier = Modifier.padding(bottom = 16.dp),
                         verticalAlignment = Alignment.CenterVertically
