@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class SignInViewModel: ViewModel()  {
     var userEmail by mutableStateOf("")
     var userPassword by mutableStateOf("")
-  //  controller: NavHostController
+
   fun isValidEmail(email: String): Boolean {
       val emailPattern = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{2,}$".toRegex()
       return emailPattern.matches(email)

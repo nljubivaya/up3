@@ -66,9 +66,18 @@ import com.example.up.model.products
 @Composable
 fun Profile(navHostController: NavHostController) {
     var name by remember { mutableStateOf("") }
-    var surname by remember { mutableStateOf("") }
-    var adress by remember { mutableStateOf("") }
+    var firstname by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    val vm = viewModel { ProfileViewModel() } // инициализация viewModel
+    vm.getUser()  // получение пользователя
+
+    LaunchedEffect(vm.user) {
+        name = vm.user.name
+        firstname = vm.user.firstname
+        address = vm.user.address
+        phone = vm.user.phone
+    }
 
     Column(
         modifier = Modifier
@@ -113,18 +122,15 @@ fun Profile(navHostController: NavHostController) {
         }
 
         Spacer(modifier = Modifier.height(30.dp))
-
-        // Основное содержимое профиля
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 30.dp),
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally // Центрируем содержимое
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Круглое изображение профиля
             Image(
-                painter = painterResource(id = R.drawable.like), // Замените на изображение профиля
+                painter = painterResource(id = R.drawable.like),
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(90.dp)
@@ -132,22 +138,18 @@ fun Profile(navHostController: NavHostController) {
                 contentScale = ContentScale.Crop
             )
 
-            // Отображение ФИО
             Text(
                 text = "Ваше ФИО",
                 color = Color.Black,
                 fontSize = 20.sp,
                 modifier = Modifier.padding(top = 8.dp)
             )
-
             Spacer(modifier = Modifier.height(30.dp))
-
-            // Три текстовых поля
             Column(modifier = Modifier.padding(16.dp)) {
                 // Поле для имени
                 Text("Имя", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
-                    value = "",
+                    value = name,
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = {
@@ -156,8 +158,8 @@ fun Profile(navHostController: NavHostController) {
                             fontSize = 15.sp,
                             color = Color(0xFF6A6A6A)
                         )
-                    }, // Исправлено на 'color'
-                    onValueChange = { },
+                    },
+                    onValueChange = { newn -> name = newn},
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                     )
@@ -166,8 +168,8 @@ fun Profile(navHostController: NavHostController) {
                 Text("Фамилия", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
 
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { /* Обработка ввода */ },
+                    value = firstname,
+                    onValueChange = { newf -> firstname = newf },
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("Поле 2", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
@@ -180,8 +182,8 @@ fun Profile(navHostController: NavHostController) {
                 Text("Адрес", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
 
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { /* Обработка ввода */ },
+                    value = address,
+                    onValueChange = { newa -> address = newa },
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("Поле 3", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
@@ -194,8 +196,8 @@ fun Profile(navHostController: NavHostController) {
                 Text("Телефон", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
 
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { /* Обработка ввода */ },
+                    value = phone,
+                    onValueChange = { newp -> phone = newp},
                     shape = RoundedCornerShape(16.dp),
                     textStyle = TextStyle(fontSize = 18.sp),
                     placeholder = { Text("Поле 3", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },

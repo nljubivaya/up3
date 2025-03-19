@@ -23,10 +23,12 @@ class RegisterAccountViewModel:  ViewModel()  {
         val emailPattern = "^[a-z0-9]+@[a-z0-9]+\\.[a-z]{2,}$".toRegex()
         return emailPattern.matches(email)
     }
-    fun onSignUpEmail(controller: NavHostController)
+
+    fun onSignUpEmail(controller: NavHostController, onResult: (Boolean) -> Unit)
     {
         viewModelScope.launch {
             try{
+
                 Constant.supabase.auth.signUpWith(Email) {
                     email = userEmail
                     password = userPassword
@@ -36,7 +38,7 @@ class RegisterAccountViewModel:  ViewModel()  {
 
                     val newUserData = profiles(
                         id = "",
-                        user_id = "",
+                        user_id = user.id,
                         photo = "",
                         firstname = "",
                         lastname = "",
@@ -49,7 +51,7 @@ class RegisterAccountViewModel:  ViewModel()  {
                     Constant.supabase.from("users")
                         .insert(newUserData)
                     controller.navigate("SignIn") {
-                        popUpTo("RegisterAccount") {
+                        popUpTo("SignIn") {
                             inclusive = true
                         }
                     }

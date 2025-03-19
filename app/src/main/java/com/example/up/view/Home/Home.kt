@@ -33,8 +33,11 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,7 +64,16 @@ import com.example.up.model.products
 @Composable
 fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
     val vm = viewModel { HomeViewModel() }
-    val selectedCategories = remember { mutableStateListOf<String>() }
+        // val selectedCategories = remember { mutableStateListOf<String>() }
+   // var searchText by remember { mutableStateOf("") }
+    var selectedCategories by remember { mutableStateOf(mutableSetOf<String>()) }
+    var searchText by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    val filteredProducts = vm.products.filter { product ->
+        (selectedCategory == null || product.category_id == selectedCategory) &&
+                product.title.contains(searchText, ignoreCase = true)
+    }
+
 
     LaunchedEffect(Unit) {
         vm.getProducts()
@@ -75,7 +87,6 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Шапка
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
@@ -104,31 +115,26 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-
-        // Поле поиска
         OutlinedTextField(
-            value = "",
+            value = searchText,
             shape = RoundedCornerShape(16.dp),
             textStyle = TextStyle(fontSize = 18.sp),
             placeholder = {
                 Text("поиск", fontSize = 15.sp, color = Color(0xFF6A6A6A))
             },
-            onValueChange = { },
+            onValueChange = { newText ->
+                searchText = newText},
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = Color(0xFFF7F7F9)
             )
         )
-
         Spacer(modifier = Modifier.height(10.dp))
-
-        // Категории
         Text(
             text = "Категории",
             fontSize = 16.sp,
             color = Color(0xFF2B2B2B),
             modifier = Modifier.align(Alignment.Start)
         )
-
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -137,21 +143,15 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                 items(vm.categories, key = { it.id }) { category ->
                     Button(
                         onClick = {
-                            if (selectedCategories.contains(category.id)) {
-                                selectedCategories.remove(category.id)
-                            } else {
-                                selectedCategories.add(category.id)
-                            }
+                            selectedCategory = if (selectedCategory == category.id) null else category.id // Переключение категории
                         },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedCategories.contains(category.id)) Color(
-                                0xFF48B2E7
-                            ) else Color.White
+                            containerColor = if (selectedCategory == category.id) Color(0xFF48B2E7) else Color.White
                         )
                     ) {
                         Text(
                             text = category.title,
-                            color = if (selectedCategories.contains(category.id)) Color.White else Color.Black
+                            color = if (selectedCategory == category.id) Color.White else Color.Black
                         )
                     }
                 }
@@ -160,38 +160,37 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween // Распределяем элементы по краям
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Текст "Акции"
                 Text(
                     text = "Популярное",
                     fontSize = 16.sp,
                     color = Color(0xFF2B2B2B),
-                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp) // Отступ слева и снизу
+                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
                 )
-
-                // Текст "Все"
                 Text(
                     text = "Все",
                     fontSize = 16.sp,
-                    color = Color(0xFF48B2E7), // Цвет текста "Все"
+                    color = Color(0xFF48B2E7),
                     modifier = Modifier
                         .padding(end = 16.dp)
                         .clickable {
-                            // Обработка нажатия на текст "Все"
+                            navHostController.navigate("SignIn") {
+                                popUpTo("SignIn") {
+                                    inclusive = true
+                                }
+                            }
                         }
                 )
             }
-
             LazyColumn {
-                items(vm.products.take(2), key = { it.id }) { product ->
+                items(filteredProducts.take(2), key = { it.id }) { product ->
                     val imageUrl = product.photo ?: "eye.png"
                     val imageState = rememberAsyncImagePainter(
                         model = ImageRequest.Builder(LocalContext.current).data(product.photo)
                             .size(coil.size.Size.ORIGINAL).build()
                     ).state
 
-                    // Карточка товара
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

@@ -1,5 +1,6 @@
 package com.example.up.view.RegisterAccount
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,14 +40,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.up.R
 
 @Composable
 fun RegisterAccount(navHostController: NavHostController) {
@@ -56,6 +61,8 @@ fun RegisterAccount(navHostController: NavHostController) {
     var errorMessage by remember { mutableStateOf("") }
     var isSignedUp by remember { mutableStateOf(false) }
     var isButtonEnabled by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var dialogMessage by remember { mutableStateOf("") }
 
     LaunchedEffect(isSignedUp) {
         if (isSignedUp) {
@@ -151,13 +158,28 @@ fun RegisterAccount(navHostController: NavHostController) {
                     Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
                         value = vm.userPassword,
+                        onValueChange = {  newText -> vm.userPassword = newText  },
                         shape = RoundedCornerShape(16.dp),
                         textStyle = TextStyle(fontSize = 18.sp),
                         placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
-                        onValueChange = { newPassword -> vm.userPassword = newPassword },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Управление отображением пароля
                         colors = OutlinedTextFieldDefaults.colors(
-                            unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
-                        )
+                            unfocusedContainerColor = Color(0xFFF7F7F9)
+                        ),
+                        trailingIcon = {
+
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                val icon = if (passwordVisible) {
+                                    painterResource(id = R.drawable.eye)
+                                } else {
+                                    painterResource(id = R.drawable.eye_off)
+                                }
+                                Image(
+                                    painter = icon,
+                                    contentDescription = if (passwordVisible) "Скрыть пароль" else "Показать пароль"
+                                )
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.height(10.dp))
 
@@ -197,25 +219,54 @@ fun RegisterAccount(navHostController: NavHostController) {
                     Button(
                         onClick = {
                             if (!vm.isValidEmail(vm.userEmail)) {
-                                errorMessage = "Некорректный email"
+                                dialogMessage = "Некорректный email"
                                 showDialog = true
                             } else {
-                                vm.onSignUpEmail(controller = navHostController)
-                                isSignedUp = true
+                                vm.onSignUpEmail(navHostController) { success ->
+                                    if (success) {
+                                        dialogMessage = "Регистрация успешна!"
+                                        showDialog = true
+                                    } else {
+                                        dialogMessage = "Ошибка регистрации. Попробуйте еще раз."
+                                        showDialog = true
+                                    }
+                                }
                             }
                         },
                         shape = RoundedCornerShape(16.dp),
                         modifier = Modifier
-                            .fillMaxWidth() // Занять всю ширину
+                            .fillMaxWidth()
                             .padding(horizontal = 55.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF2B6B8B),
                             contentColor = Color.White
                         ),
-                        enabled = isButtonEnabled // Устанавливаем состояние кнопки
+                        enabled = isButtonEnabled
                     ) {
                         Text("Зарегистрироваться", fontSize = 14.sp)
                     }
+
+                    // Диалоговое окно
+                    if (showDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDialog = false },
+                            title = { Text("Сообщение") },
+                            text = { Text(dialogMessage) },
+                            confirmButton = {
+                                Button(onClick = {
+                                    showDialog = false
+                                    if (dialogMessage == "Регистрация успешна!") {
+                                        navHostController.navigate("SignIn") {
+                                            popUpTo("SignIn") { inclusive = true }
+                                        }
+                                    }
+                                }) {
+                                    Text("OK")
+                                }
+                            }
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(30.dp))
                     Row(
                         modifier = Modifier.padding(bottom = 16.dp),

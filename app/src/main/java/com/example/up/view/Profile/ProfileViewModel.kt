@@ -13,28 +13,29 @@ import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 
 class ProfileViewModel:  ViewModel() {
-//    var user by mutableStateOf(profiles())
+    //var user by mutableStateOf<profiles?>(null)
+    var user by mutableStateOf(profiles())
 
-//    fun getUser() {
-//        viewModelScope.launch {
-//            try {
-//                val currentUser = Constant.supabase.auth.currentUserOrNull()
-//                if(currentUser != null) {
-//
-//                    user = Constant.supabase.from("users")
-//                        .select{
-//                            filter {
-//                                eq("id_user", currentUser.id)
-//                            }
-//                        }.decodeSingle<Users>()
-//                    Log.d("user", user.toString())
-//                }
-//
-//            } catch (e: Exception) {
-//                println(e.message.toString())
-//            }
-//        }
-//    }
+    fun getUser () {
+        viewModelScope.launch {
+            try {
+                val currentUser  = Constant.supabase.auth.currentUserOrNull()
+                if (currentUser  != null) {
+                    // Получаем данные пользователя из таблицы users
+                    user = Constant.supabase.from("users")
+                        .select {
+                            filter {
+                                eq("id_user", currentUser .id) // Предполагается, что в таблице users есть поле id_user
+                            }
+                        }
+                        .decodeSingle<profiles>() // Декодируем данные в объект profiles
+                    Log.d("user", user.toString())
+                }
+            } catch (e: Exception) {
+                println(e.message.toString())
+            }
+        }
+    }
 
     fun updateUser(user_id: String, photo: String, firstname: String, lastname: String, address: String, phone: String) {
         viewModelScope.launch {
