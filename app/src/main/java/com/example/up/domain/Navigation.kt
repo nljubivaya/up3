@@ -53,7 +53,7 @@ fun Navigation() {
         }
 
         composable("Catalog") {
-            Catalog(navHostController)
+            Catalog(navHostController, onDismissRequest = {})
         }
 
         composable("CreateNewPassword") {

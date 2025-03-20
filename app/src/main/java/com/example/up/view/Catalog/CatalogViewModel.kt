@@ -7,8 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.up.domain.Constant
+import com.example.up.model.AddFavourite
 import com.example.up.model.categories
 import com.example.up.model.products
+import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
 
@@ -30,7 +32,24 @@ class CatalogViewModel : ViewModel(){
             }
         }
     }
-
+    fun addFavourite(id: String, onDismissRequest: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val user = Constant.supabase.auth.currentUserOrNull()
+                if (user != null) {
+                    Constant.supabase.from("favourite").insert(
+                        AddFavourite(
+                            product_id = id,
+                            user_id = user.id
+                        )
+                    )
+                    onDismissRequest()
+                }
+            } catch (e: Exception) {
+                Log.d("add", e.message.toString())
+            }
+        }
+    }
     fun getCatrgories() {
         viewModelScope.launch {
             try {

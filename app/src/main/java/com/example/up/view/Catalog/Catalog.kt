@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,11 +31,15 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -52,12 +57,14 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
+import com.example.up.view.Home.HomeViewModel
 
 @Composable
-fun Catalog(navHostController: NavHostController) {
+fun Catalog(navHostController: NavHostController, onDismissRequest: () -> Unit) {
     val vm = viewModel { CatalogViewModel() }
+    val vm1 = viewModel { HomeViewModel() }
     val selectedCategories = remember { mutableStateListOf<String>() }
-
+    var isFavourite by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         vm.getProducts()
         vm.getCatrgories()
@@ -131,57 +138,96 @@ fun Catalog(navHostController: NavHostController) {
                 Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
                     LazyColumn {
                         items(
-                            vm.products,
-                            key = { products -> products.id },
-                        ) { products ->
-                            Spacer(modifier = Modifier.height(20.dp))
-                            val imageState = rememberAsyncImagePainter(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(products.photo)
-                                    .size(coil.size.Size.ORIGINAL).build()
-                            ).state
-                            if (imageState is AsyncImagePainter.State.Error) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
+                            vm.products.chunked(2), // Разбиваем на группы по 2 элемента
+                            key = { products -> products.joinToString(",") { it.id.toString() } } // Уникальный ключ для каждой группы
+                        ) { productPair -> // Получаем пару продуктов
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween // Распределяем карточки по ширине
+                            ) {
+                                productPair.forEach { product -> // Итерируем по паре продуктов
+                                    Card(
+                                        modifier = Modifier
+                                            .weight(1f) // Занимаем равную ширину
+                                            .padding(end = 10.dp), // Отступ между карточками
+
+                                    ) {
+                                        Column(modifier = Modifier.padding(8.dp)) { // Отступ внутри карточки
+                                            IconButton(
+                                                onClick = {
+                                                    isFavourite = !isFavourite
+                                                    vm1.addFavourite(product.id, onDismissRequest)
+                                                },
+                                                modifier = Modifier.size(32.dp)
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = R.drawable.like),
+                                                    contentDescription = "лайк",
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    colorFilter = if (isFavourite) ColorFilter.tint(
+                                                        Color.Red
+                                                    ) else null
+                                                )
+                                            }
+
+                                            val imageState = rememberAsyncImagePainter(
+                                                model = ImageRequest.Builder(LocalContext.current)
+                                                    .data(product.photo)
+                                                    .size(coil.size.Size.ORIGINAL).build()
+                                            ).state
+
+                                            if (imageState is AsyncImagePainter.State.Error) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(100.dp), // Уменьшаем высоту
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    CircularProgressIndicator()
+                                                }
+                                            }
+
+                                            if (imageState is AsyncImagePainter.State.Success) {
+                                                Image(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(100.dp), // Уменьшаем высоту
+                                                    painter = imageState.painter,
+                                                    contentDescription = "",
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                            }
+
+                                            Text(
+                                                text = "BEST SELLER",
+                                                modifier = Modifier.padding(start = 10.dp),
+                                                color = Color(0xFF48B2E7)
+                                            )
+                                            Text(
+                                                text = product.title,
+                                                modifier = Modifier.padding(start = 10.dp),
+                                                color = Color(0xFF6A6A6A)
+                                            )
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                Text(
+                                                    text = "₽${product.cost} ",
+                                                    modifier = Modifier
+                                                        .padding(start = 10.dp),
+                                                    color = Color(0xFF6A6A6A)
+                                                )
+                                            }
+                                        }
+                                    }
                                 }
                             }
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.like),
-                                    contentDescription = "like",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                            if (imageState is AsyncImagePainter.State.Success) {
-                                Image(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp),
-                                    painter = imageState.painter,
-                                    contentDescription = "",
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                            Text(
-                                products.title,
-                                modifier = Modifier.padding(8.dp),
-                            )
-                            Text(
-                                products.cost.toString(),
-                                modifier = Modifier.padding(8.dp),
-                            )
                         }
                     }
                 }
-                Row(
+            }
+            Row(
                     modifier = Modifier.fillMaxWidth()
                         .padding(bottom = 25.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -240,4 +286,3 @@ fun Catalog(navHostController: NavHostController) {
             }
         }
     }
-}

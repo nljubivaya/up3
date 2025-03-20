@@ -44,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -67,6 +68,7 @@ import com.example.up.view.SideMenu.SideMenu
 @Composable
 fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
     val vm = viewModel { HomeViewModel() }
+    var isFavourite by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     val filteredProducts = vm.products.filter { product ->
@@ -78,7 +80,6 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
         vm.getCatrgories()
     }
     var isMenuOpen by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -219,6 +220,20 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                         Column(
                             modifier = Modifier.padding(16.dp)
                         ) {
+                            IconButton(
+                                onClick = {
+                                    isFavourite = !isFavourite // Переключаем состояние
+                                    vm.addFavourite(product.id, onDismissRequest) // Добавляем или удаляем из избранного
+                                },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.like),
+                                    contentDescription = "лайк",
+                                    modifier = Modifier.fillMaxSize(),
+                                    colorFilter = if (isFavourite) ColorFilter.tint(Color.Red) else null
+                                )
+                            }
                             if (imageState is AsyncImagePainter.State.Error) {
                                 Box(
                                     modifier = Modifier
@@ -240,30 +255,24 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
                                 )
                             }
                             Text(
+                                text = "BEST SELLER",
+                                modifier = Modifier.padding(start = 10.dp),
+                                color = Color(0xFF48B2E7)
+                            )
+                            Text(
                                 product.title,
-                                modifier = Modifier.padding(top = 8.dp),
+                                modifier = Modifier.padding(start = 10.dp),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
                             )
                             Text(
-                                product.cost.toString(),
-                                modifier = Modifier.padding(top = 4.dp),
+                                text = "₽${product.cost} ",
+                                modifier = Modifier.padding(start = 10.dp),
                                 fontSize = 16.sp,
                                 color = Color(0xFF48B2E7)
                             )
 
-                            IconButton(
-                                onClick = {
-                                    vm.addFavourite(product.id, onDismissRequest)
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.like),
-                                    contentDescription = "лайк",
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
+
                         }
                     }
                 }
