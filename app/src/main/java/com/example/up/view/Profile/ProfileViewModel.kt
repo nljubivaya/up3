@@ -31,40 +31,32 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class ProfileViewModel:  ViewModel() {
-    //var user by mutableStateOf<profiles?>(null)
-    var user by mutableStateOf(profiles())
+class ProfileViewModel: ViewModel() {
+    var profiles by mutableStateOf<List<profiles>>(listOf())
 
-    fun getUser () {
+    // Функция для загрузки профиля
+    fun showProfile() {
         viewModelScope.launch {
             try {
-                val currentUser  = Constant.supabase.auth.currentUserOrNull()
-                if (currentUser  != null) {
-                    // Получаем данные пользователя из таблицы profiles
-                    user = Constant.supabase.from("profiles")
-                        .select {
+                val user = Constant.supabase.auth.currentUserOrNull()
+                if (user != null) {
+                    profiles= Constant.supabase.from("profiles")
+                        .select{
                             filter {
-                                eq("id_user", currentUser .id) // Убедитесь, что поле id_user существует в таблице profiles
+                                eq("user_id",user.id)
+
                             }
-                        }
-                        .decodeSingle<profiles>() // Декодируем данные в объект profiles
-                    Log.d("user", user.toString())
-                } else {
-                    Log.d("user", "Пользователь не авторизован")
+                        }.decodeList<profiles>()
                 }
             } catch (e: Exception) {
-                Log.e("getUser ", "Ошибка: ${e.message}")
+                Log.d("error", e.message.toString())
             }
         }
     }
-
-
-
     fun createImageFile(context: Context): File {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
         val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir).apply {
-            // Дополнительная логика, если нужно
         }
     }
 
@@ -78,14 +70,13 @@ class ProfileViewModel:  ViewModel() {
         }
     }
 
-    fun updateUser(user_id: String, photo: String, firstname: String, lastname: String, address: String, phone: String) {
+    fun updateProfile(firstname: String, lastname: String, address: String, phone: String, photo: String) {
         viewModelScope.launch {
             try {
-                if (user_id != "" && firstname != "" && lastname != "" && address != "" && phone != "") {
-                    Constant.supabase.from("users").update(
+                val user = Constant.supabase.auth.currentUserOrNull()
+                if (user != null) { // Проверяем, что пользователь вошел
+                    Constant.supabase.from("profiles").update(
                         {
-                            set("user_id", user_id)
-                            set("photo", photo)
                             set("firstname", firstname)
                             set("lastname", lastname)
                             set("address", address)
@@ -93,12 +84,14 @@ class ProfileViewModel:  ViewModel() {
                         }
                     ) {
                         filter {
-                            //eq("id_user", profiles.id)
+                            eq("user_id", user.id) // Обновляем только профиль текущего пользователя
                         }
                     }
+                    showProfile() // Перезагружаем данные после обновления
                 }
+                Log.d("ProfileUpdate", "Профиль обновлен успешно")
             } catch (e: Exception) {
-                println(e.message.toString())
+                Log.e("ProfileUpdateError", "Ошибка обновления профиля: ${e.message}")
             }
         }
     }

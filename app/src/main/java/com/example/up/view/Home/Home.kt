@@ -80,9 +80,7 @@ fun Home(navHostController: NavHostController, onDismissRequest: () -> Unit) {
         vm.getProducts()
         vm.getCatrgories()
     }
-
     var isMenuOpen by remember { mutableStateOf(false) }
-
     Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
         Column(
             modifier = Modifier

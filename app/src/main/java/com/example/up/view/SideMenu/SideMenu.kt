@@ -31,12 +31,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.up.R
 
 
 @Composable
-fun SideMenu(navHostController: NavHostController) {
+fun SideMenu(navHostController: NavController) {
     val icons = listOf(
         R.drawable.human, // Профиль
         R.drawable.korzina, // Корзина

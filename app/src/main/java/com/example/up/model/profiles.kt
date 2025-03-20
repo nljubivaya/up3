@@ -11,7 +11,7 @@ data class profiles(
     val lastname: String = "",
     val address: String = "",
     val phone: String = "",
-    val email: String = "",
-    val name: String = "",
-    val password: String = "",
+    val email: String? = null, // Nullable тип для email
+    val name: String? = null,  // Nullable тип для name
+    val password: String? = null // Nullable тип для password
 )

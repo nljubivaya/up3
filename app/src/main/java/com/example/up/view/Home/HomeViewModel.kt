@@ -27,7 +27,6 @@ import io.ktor.websocket.Frame
 class HomeViewModel : ViewModel(){
     var products by mutableStateOf<List<products>>(listOf())
     var categories by mutableStateOf<List<categories>>(listOf())
-
     fun addFavourite(id: String, onDismissRequest: () -> Unit) {
         viewModelScope.launch {
             try {
