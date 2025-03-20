@@ -51,139 +51,135 @@ fun Favourite(navHostController: NavHostController) {
         vm.getProducts()
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-            .padding(14.dp),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Заголовок и кнопки
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+    // Используем Box для размещения элементов
+    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Кнопка меню
-            IconButton(
-                onClick = {  navHostController.navigate("RegisterAccount") {
-                    popUpTo("RegisterAccount") {
-                        inclusive = true
-                    }
-                } },
-                modifier = Modifier.size(32.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = "Закрыть",
-                    tint = Color.Black
-                )
+                IconButton(
+                    onClick = { navHostController.navigate("Catalog") {
+                        popUpTo("Catalog") {
+                            inclusive = true
+                        }
+                    } },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Закрыть",
+                        tint = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                    Image(painter = painterResource(id = R.drawable.redlove), contentDescription = "Корзина", modifier = Modifier.fillMaxSize())
+                }
             }
-            Spacer(modifier = Modifier.weight(1f))
-            // Кнопка корзины
-            IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                Image(painter = painterResource(id = R.drawable.redlove), contentDescription = "Корзина", modifier = Modifier.fillMaxSize())
-            }
-        }
-
-        Text(
-            text = "Избранное",
-            fontSize = 32.sp,
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        if (vm.favourite.isEmpty() || vm.products.isEmpty()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else if (vm.favourite.isEmpty()) {
-            Text("Нет избранных товаров", modifier = Modifier.align(Alignment.CenterHorizontally))
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(vm.favourite, key = { favourite -> favourite.id }) { favourite ->
-                    val product = vm.products.find { it.id == favourite.product_id }
-                    Row(
-                        modifier = Modifier.height(IntrinsicSize.Max),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val imageState = rememberAsyncImagePainter(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(product?.photo)
-                                .size(coil.size.Size.ORIGINAL)
-                                .build()
-                        ).state
-
-                        // Проверка состояния загрузки изображения
-                        if (imageState is AsyncImagePainter.State.Error) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(200.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+            Text(
+                text = "Избранное",
+                fontSize = 32.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            if (vm.favourite.isEmpty() || vm.products.isEmpty()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else if (vm.favourite.isEmpty()) {
+                Text("Нет избранных товаров", modifier = Modifier.align(Alignment.CenterHorizontally))
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(vm.favourite, key = { favourite -> favourite.id }) { favourite ->
+                        val product = vm.products.find { it.id == favourite.product_id }
+                        Row(
+                            modifier = Modifier.height(IntrinsicSize.Max),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            val imageState = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(product?.photo)
+                                    .size(coil.size.Size.ORIGINAL)
+                                    .build()
+                            ).state
+                            if (imageState is AsyncImagePainter.State.Error) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            } else if (imageState is AsyncImagePainter.State.Success) {
+                                Card(shape = RoundedCornerShape(8.dp)) {
+                                    Image(
+                                        modifier = Modifier.size(100.dp),
+                                        painter = imageState.painter,
+                                        contentDescription = "",
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
                             }
-                        } else if (imageState is AsyncImagePainter.State.Success) {
-                            Card(shape = RoundedCornerShape(8.dp)) { // Используем RoundedCornerShape
-                                Image(
-                                    modifier = Modifier.size(100.dp),
-                                    painter = imageState.painter,
-                                    contentDescription = "",
-                                    contentScale = ContentScale.Crop
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = product?.title ?: "",
+                                    modifier = Modifier.padding(8.dp),
+                                    fontSize = 14.sp,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Start,
+                                    lineHeight = 16.sp
                                 )
+                                Text(
+                                    text = product?.cost.toString() ?: "",
+                                    fontSize = 14.sp,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Start,
+                                    lineHeight = 16.sp
+                                )
+
+                                IconButton(
+                                    onClick = {
+                                        vm.deleteFavourite(favourite.id)
+                                    },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Удалить",
+                                        tint = Color.Black
+                                    )
+                                }
                             }
                         }
-
-                        Spacer(modifier = Modifier.width(10.dp))
-
-                        Column {
-                            Text(
-                                text = product?.title ?: "",
-                                modifier = Modifier.padding(8.dp),
-                                fontSize = 14.sp,
-                                color = Color.Black,
-                                textAlign = TextAlign.Start,
-                                lineHeight = 16.sp
-                            )
-                            Text(
-                                text = product?.cost.toString() ?: "",
-                                fontSize = 14.sp,
-                                color = Color.Black,
-                                textAlign = TextAlign.Start,
-                                lineHeight = 16.sp
-                            )
-
-                            IconButton(
-                                onClick = {
-                                    // Вызов метода удаления из избранного
-                                     vm.deleteFavourite(favourite.id)
-                                },
-                                modifier = Modifier.size(32.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Удалить",
-                                    tint = Color.Black
-                                )
-                            }
-                        }
-
                     }
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 25.dp), // Отступ снизу
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+        }
+
+        // Нижняя панель иконок
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 25.dp)
+                .align(Alignment.BottomCenter), // Выравниваем панель внизу
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+                IconButton(onClick = { navHostController.navigate("Catalog") {
+                    popUpTo("Catalog") { inclusive = true }
+                }}, modifier = Modifier.size(32.dp)) {
                     Image(
                         painter = painterResource(id = R.drawable.home),
                         contentDescription = "дом",
-                        modifier = Modifier.fillMaxSize()
-                    )
+                        modifier = Modifier.fillMaxSize())
                 }
                 IconButton(
                     onClick = {
@@ -230,6 +226,6 @@ fun Favourite(navHostController: NavHostController) {
             }
         }
     }
-}
+
 
 

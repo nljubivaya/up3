@@ -128,8 +128,6 @@ fun SignIn(navHostController: NavHostController) {
                     )
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-
-                // Поле для пароля
                 Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
                     value = vm.userPassword,
@@ -139,10 +137,9 @@ fun SignIn(navHostController: NavHostController) {
                     placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(), // Управление отображением пароля
                     colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
+                        unfocusedContainerColor = Color(0xFFF7F7F9)
                     ),
                     trailingIcon = {
-
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 val icon = if (passwordVisible) {
                                     painterResource(id = R.drawable.eye)
@@ -175,12 +172,11 @@ fun SignIn(navHostController: NavHostController) {
             Spacer(modifier = Modifier.height(30.dp))
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally, // Центрируем по горизонтали
-                verticalArrangement = Arrangement.Center // Центрируем по вертикали
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Button(
                     onClick = {
-                        // Проверка на пустоту полей
                         if (vm.userEmail.isEmpty() || vm.userPassword.isEmpty()) {
                             errorMessage = "Заполните все поля"
                             showDialog = true
@@ -193,7 +189,7 @@ fun SignIn(navHostController: NavHostController) {
                     },
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth() // Занять всю ширину
+                        .fillMaxWidth()
                         .padding(horizontal = 55.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF48B2E7),
@@ -203,7 +199,6 @@ fun SignIn(navHostController: NavHostController) {
                     Text("Войти", fontSize = 14.sp)
                 }
 
-                // Диалоговое окно для отображения ошибки
                 if (showDialog) {
                     AlertDialog(
                         onDismissRequest = { showDialog = false },
@@ -217,7 +212,7 @@ fun SignIn(navHostController: NavHostController) {
                     )
                 }
 
-                Spacer(modifier = Modifier.height(50.dp)) // Пробел между кнопкой и текстом
+                Spacer(modifier = Modifier.height(50.dp))
                 Row(
                     modifier = Modifier.padding(bottom = 16.dp),
                     verticalAlignment = Alignment.CenterVertically

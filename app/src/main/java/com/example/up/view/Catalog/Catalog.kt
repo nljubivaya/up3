@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -44,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -58,6 +61,7 @@ import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
 import com.example.up.view.Home.HomeViewModel
+import com.example.up.view.SideMenu.SideMenu
 
 @Composable
 fun Catalog(navHostController: NavHostController, onDismissRequest: () -> Unit) {
@@ -65,10 +69,17 @@ fun Catalog(navHostController: NavHostController, onDismissRequest: () -> Unit) 
     val vm1 = viewModel { HomeViewModel() }
     val selectedCategories = remember { mutableStateListOf<String>() }
     var isFavourite by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+
     LaunchedEffect(Unit) {
         vm.getProducts()
         vm.getCatrgories()
     }
+
+    val filteredProducts = vm.products.filter { product ->
+        selectedCategory == null || product.category_id == selectedCategory
+    }
+    var isMenuOpen by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -77,212 +88,179 @@ fun Catalog(navHostController: NavHostController, onDismissRequest: () -> Unit) 
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween // Распределение пространства между элементами
-        ) {
-            IconButton(
-                onClick = { navHostController.navigate("Home") {
-                    popUpTo("Home") { inclusive = true }
-                }},
-                modifier = Modifier.size(32.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.strela),
-                    contentDescription = "Меню",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-        Text(
-            text = "Outdoor",
-            fontSize = 32.sp,
-            color = Color.Black,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            text = "Категории",
-            fontSize = 16.sp,
-            color = Color(0xFF2B2B2B),
-            modifier = Modifier
-                .align(Alignment.Start)
-        )
-        Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)
-        ) {
-            LazyRow(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(vm.categories, key = { it.id }) { category ->
-                    Button(
-                        onClick = {
-                            if (selectedCategories.contains(category.id)) {
-                                selectedCategories.remove(category.id)
-                            } else {
-                                selectedCategories.add(category.id)
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedCategories.contains(category.id)) Color(0xFF48B2E7) else Color.White
-                        )
+                IconButton(onClick = { isMenuOpen = !isMenuOpen}, modifier = Modifier.size(32.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.menu),
+                        contentDescription = "Меню",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+                if (isMenuOpen) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Gray.copy(alpha = 0.8f))
+                            .clickable { isMenuOpen = false }
                     ) {
-                        Text(text = category.title, color = if (selectedCategories.contains(category.id)) Color.White else Color.Black)
+                        Column(
+                            modifier = Modifier
+                                .width(250.dp)
+                                .fillMaxHeight()
+                                .background(Color.White)
+                                .padding(16.dp),
+                            verticalArrangement = Arrangement.Top
+                        ) {
+                            SideMenu(navHostController)
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                    Image(
+                        painter = painterResource(id = R.drawable.korzina),
+                        contentDescription = "Корзина",
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
-            Box {
-                Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
-                    LazyColumn {
-                        items(
-                            vm.products.chunked(2), // Разбиваем на группы по 2 элемента
-                            key = { products -> products.joinToString(",") { it.id.toString() } } // Уникальный ключ для каждой группы
-                        ) { productPair -> // Получаем пару продуктов
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween // Распределяем карточки по ширине
-                            ) {
-                                productPair.forEach { product -> // Итерируем по паре продуктов
-                                    Card(
+            Text(
+                text = "Главная",
+                fontSize = 32.sp,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(vm.categories, key = { it.id }) { category ->
+                Button(
+                    onClick = {
+                        selectedCategory =
+                            if (selectedCategory == category.id) null else category.id // Переключение категории
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selectedCategory == category.id) Color(0xFF48B2E7) else Color.White
+                    )
+                ) {
+                    Text(
+                        text = category.title,
+                        color = if (selectedCategory == category.id) Color.White else Color.Black
+                    )
+                }
+            }
+        }
+
+        // Отображение продуктов
+        LazyColumn {
+            items(
+                filteredProducts.chunked(2),
+                key = { products -> products.joinToString(",") { it.id.toString() } }
+            ) { productPair ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    productPair.forEach { product ->
+                        Card(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 10.dp)
+
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
+                                // Кнопка "лайк"
+                                IconButton(
+                                    onClick = {
+                                        isFavourite = !isFavourite
+                                        vm1.addFavourite(product.id, onDismissRequest)
+                                    },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.like),
+                                        contentDescription = "лайк",
+                                        modifier = Modifier.fillMaxSize(),
+                                        colorFilter = if (isFavourite) ColorFilter.tint(Color.Red) else null
+                                    )
+                                }
+
+                                // Загрузка изображения продукта
+                                val imageState = rememberAsyncImagePainter(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(product.photo)
+                                        .size(coil.size.Size.ORIGINAL).build()
+                                ).state
+
+                                // Обработка состояния загрузки
+                                if (imageState is AsyncImagePainter.State.Error) {
+                                    Box(
                                         modifier = Modifier
-                                            .weight(1f) // Занимаем равную ширину
-                                            .padding(end = 10.dp), // Отступ между карточками
-
+                                            .fillMaxWidth()
+                                            .height(100.dp),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Column(modifier = Modifier.padding(8.dp)) { // Отступ внутри карточки
-                                            IconButton(
-                                                onClick = {
-                                                    isFavourite = !isFavourite
-                                                    vm1.addFavourite(product.id, onDismissRequest)
-                                                },
-                                                modifier = Modifier.size(32.dp)
-                                            ) {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.like),
-                                                    contentDescription = "лайк",
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    colorFilter = if (isFavourite) ColorFilter.tint(
-                                                        Color.Red
-                                                    ) else null
-                                                )
-                                            }
-
-                                            val imageState = rememberAsyncImagePainter(
-                                                model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(product.photo)
-                                                    .size(coil.size.Size.ORIGINAL).build()
-                                            ).state
-
-                                            if (imageState is AsyncImagePainter.State.Error) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(100.dp), // Уменьшаем высоту
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    CircularProgressIndicator()
-                                                }
-                                            }
-
-                                            if (imageState is AsyncImagePainter.State.Success) {
-                                                Image(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(100.dp), // Уменьшаем высоту
-                                                    painter = imageState.painter,
-                                                    contentDescription = "",
-                                                    contentScale = ContentScale.Crop
-                                                )
-                                            }
-
-                                            Text(
-                                                text = "BEST SELLER",
-                                                modifier = Modifier.padding(start = 10.dp),
-                                                color = Color(0xFF48B2E7)
-                                            )
-                                            Text(
-                                                text = product.title,
-                                                modifier = Modifier.padding(start = 10.dp),
-                                                color = Color(0xFF6A6A6A)
-                                            )
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.fillMaxWidth()
-                                            ) {
-                                                Text(
-                                                    text = "₽${product.cost} ",
-                                                    modifier = Modifier
-                                                        .padding(start = 10.dp),
-                                                    color = Color(0xFF6A6A6A)
-                                                )
-                                            }
-                                        }
+                                        Text(text = "Ошибка загрузки", color = Color.Red)
                                     }
+                                } else if (imageState is AsyncImagePainter.State.Success) {
+                                    Image(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(100.dp),
+                                        painter = imageState.painter,
+                                        contentDescription = product.title,
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    // Показать индикатор загрузки
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(100.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator()
+                                    }
+                                }
+
+                                // Подпись "BEST SELLER"
+                                Text(
+                                    text = "BEST SELLER",
+                                    modifier = Modifier.padding(start = 10.dp),
+                                    color = Color(0xFF48B2E7)
+                                )
+
+                                // Название продукта
+                                Text(
+                                    text = product.title,
+                                    modifier = Modifier.padding(start = 10.dp, top = 4.dp),
+                                    color = Color(0xFF6A6A6A),
+                                    fontWeight = FontWeight.Bold // Сделаем текст жирным
+                                )
+
+                                // Цена продукта
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                                ) {
+                                    Text(
+                                        text = "₽${product.cost}",
+                                        modifier = Modifier.padding(start = 10.dp),
+                                        color = Color(0xFF6A6A6A)
+                                    )
                                 }
                             }
                         }
                     }
                 }
             }
-            Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(bottom = 25.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.home),
-                            contentDescription = "дом",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navHostController.navigate("Favourite") {
-                                popUpTo("Favourite") { inclusive = true }
-                            }
-                        },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.like),
-                            contentDescription = "Лайк",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.korzina),
-                            contentDescription = "Корзина",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.zvonok),
-                            contentDescription = "звонок",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            navHostController.navigate("Profile") {
-                                popUpTo("Profile") { inclusive = true }
-                            }
-                        },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.human),
-                            contentDescription = "Человек",
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-                }
-            }
+
         }
     }
+}

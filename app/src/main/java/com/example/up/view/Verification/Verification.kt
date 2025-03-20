@@ -2,6 +2,7 @@ package com.example.up.view.Verification
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -141,6 +142,20 @@ fun Verification(navHostController: NavHostController) {
                 color = Color(0xFF707B81),
                 textAlign = TextAlign.Right, // Центрируем текст
                 modifier = Modifier.padding(top = 12.dp) // Отступ сверху
+            )
+            Text(
+                text = "Далее",
+                fontSize = 16.sp,
+                color = Color(0xFF007BFF),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .clickable(onClick = {
+                        navHostController.navigate("CreateNewPassword") {
+                            popUpTo("CreateNewPassword") {
+                                inclusive = true
+                            }
+                        }
+                    })
             )
         }
     }

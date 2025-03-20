@@ -40,21 +40,24 @@ class ProfileViewModel:  ViewModel() {
             try {
                 val currentUser  = Constant.supabase.auth.currentUserOrNull()
                 if (currentUser  != null) {
-                    // Получаем данные пользователя из таблицы users
-                    user = Constant.supabase.from("users")
+                    // Получаем данные пользователя из таблицы profiles
+                    user = Constant.supabase.from("profiles")
                         .select {
                             filter {
-                                eq("id_user", currentUser .id) // Предполагается, что в таблице users есть поле id_user
+                                eq("id_user", currentUser .id) // Убедитесь, что поле id_user существует в таблице profiles
                             }
                         }
                         .decodeSingle<profiles>() // Декодируем данные в объект profiles
                     Log.d("user", user.toString())
+                } else {
+                    Log.d("user", "Пользователь не авторизован")
                 }
             } catch (e: Exception) {
-                println(e.message.toString())
+                Log.e("getUser ", "Ошибка: ${e.message}")
             }
         }
     }
+
 
 
     fun createImageFile(context: Context): File {
@@ -64,6 +67,7 @@ class ProfileViewModel:  ViewModel() {
             // Дополнительная логика, если нужно
         }
     }
+
     fun generateBarcode(userId: String): Bitmap? {
         return try {
             val barcodeEncoder = BarcodeEncoder()

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.up.R
 
@@ -48,7 +49,7 @@ import com.example.up.R
 
 @Composable
 fun CreateNewPassword(navHostController: NavHostController) {
-//    val vm = viewModel { SignInViewModel() }
+    val vm = viewModel { CreateNewPasswordViewModel() }
     var passwordVisible by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -65,10 +66,12 @@ fun CreateNewPassword(navHostController: NavHostController) {
     ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start // Выравнивание по левому краю
+                horizontalArrangement = Arrangement.Start
             ) {
                 IconButton(
-                    onClick = {},
+                    onClick = { navHostController.navigate("Verification") {
+                        popUpTo("Profile") { inclusive = true }
+                    }},
                     modifier = Modifier.size(32.dp)
                 ) {
                     Icon(
@@ -84,7 +87,6 @@ fun CreateNewPassword(navHostController: NavHostController) {
                 color = Color.Black,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp)
-
             )
             Text(
                 text = "Установите Новый Пароль Для Входа В\nВашу Учетную Запись",
@@ -94,7 +96,6 @@ fun CreateNewPassword(navHostController: NavHostController) {
                 modifier = Modifier.padding(bottom = 16.dp)
             )
             Column(modifier = Modifier.padding(16.dp)) {
-                // Поле для email
                 Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                 OutlinedTextField(
                     value = password,
@@ -121,8 +122,6 @@ fun CreateNewPassword(navHostController: NavHostController) {
                     }
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-
-                // Поле для подтверждения пароля
                 Text(
                     "Подтверждение пароля",
                     fontSize = 16.sp,
@@ -156,16 +155,16 @@ fun CreateNewPassword(navHostController: NavHostController) {
             Spacer(modifier = Modifier.height(30.dp))
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally, // Центрируем по горизонтали
-                verticalArrangement = Arrangement.Center // Центрируем по вертикали
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Button(
                     onClick = {
+
                         if (password != confirmPassword) {
                             errorMessage = "Пароли не совпадают"
                             showDialog = true
                         } else {
-                            // Логика для сохранения нового пароля
                         }
                     },
                     shape = RoundedCornerShape(16.dp),
@@ -179,8 +178,6 @@ fun CreateNewPassword(navHostController: NavHostController) {
                 ) {
                     Text("Сохранить", fontSize = 14.sp)
                 }
-
-                // Диалоговое окно для отображения ошибки
                 if (showDialog) {
                     AlertDialog(
                         onDismissRequest = { showDialog = false },

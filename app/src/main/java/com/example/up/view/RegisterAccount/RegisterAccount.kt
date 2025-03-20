@@ -125,11 +125,11 @@ fun RegisterAccount(navHostController: NavHostController) {
                     // Поле для имени
                     Text("Ваше имя", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
-                        value = vm.userName,
+                        value = vm.usname,
                         shape = RoundedCornerShape(16.dp),
                         textStyle = TextStyle(fontSize = 18.sp),
                         placeholder = { Text("xxxxxxxx", fontSize = 15.sp, color = Color(0xFF6A6A6A)) }, // Исправлено на 'color'
-                        onValueChange = {  newName -> vm.userName = newName },
+                        onValueChange = {  newName -> vm.usname = newName },
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedContainerColor = Color(0xFFF7F7F9) // Цвет фона
                         )
@@ -140,12 +140,12 @@ fun RegisterAccount(navHostController: NavHostController) {
                     Column(modifier = Modifier.padding(0.dp)) {
                         Text("Email", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                         OutlinedTextField(
-                            value = vm.userEmail,
+                            value = vm.uslogin,
                             shape = RoundedCornerShape(16.dp),
                             textStyle = TextStyle(fontSize = 18.sp),
                             placeholder = { Text("xyz@gmail.com", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
                             onValueChange = { newEmail ->
-                                vm.userEmail = newEmail
+                                vm.uslogin = newEmail
                             },
                             colors = OutlinedTextFieldDefaults.colors(
                                 unfocusedContainerColor = Color(0xFFF7F7F9)
@@ -157,8 +157,8 @@ fun RegisterAccount(navHostController: NavHostController) {
                     // Поле для пароля
                     Text("Пароль", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
                     OutlinedTextField(
-                        value = vm.userPassword,
-                        onValueChange = {  newText -> vm.userPassword = newText  },
+                        value = vm.uspassword,
+                        onValueChange = {  newText -> vm.uspassword = newText  },
                         shape = RoundedCornerShape(16.dp),
                         textStyle = TextStyle(fontSize = 18.sp),
                         placeholder = { Text("●●●●●", fontSize = 15.sp, color = Color(0xFF6A6A6A)) },
@@ -218,7 +218,7 @@ fun RegisterAccount(navHostController: NavHostController) {
                 ) {
                     Button(
                         onClick = {
-                            if (!vm.isValidEmail(vm.userEmail)) {
+                            if (!vm.isValidEmail(vm.uslogin)) {
                                 errorMessage = "Некорректный email"
                                 showDialog = true
                             } else {

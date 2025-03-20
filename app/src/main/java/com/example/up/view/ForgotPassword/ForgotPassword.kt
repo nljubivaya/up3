@@ -71,18 +71,14 @@ fun ForgotPassword(navHostController: NavHostController) {
                     navHostController.navigate("SignIn") {
                         popUpTo("SignIn") {
                             inclusive = true
-                        }
-                    }
-                },
+                        } } },
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
                     contentDescription = "Закрыть",
                     tint = Color.Black
-                )
-            }
-        }
+                ) } }
         Spacer(modifier = Modifier.height(30.dp))
         Text(
             text = "Забыл Пароль",
@@ -90,7 +86,6 @@ fun ForgotPassword(navHostController: NavHostController) {
             color = Color.Black,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(bottom = 16.dp)
-
         )
         Text(
             text = "Введите Свою Учетную Запись\n" +
@@ -111,14 +106,11 @@ fun ForgotPassword(navHostController: NavHostController) {
                         "xyz@gmail.com",
                         fontSize = 15.sp,
                         color = Color(0xFF6A6A6A)
-                    )
-                },
+                    ) },
                 onValueChange = { email = it },
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedContainerColor = Color(0xFFF7F7F9)
-                )
-            )
-        }
+                )) }
         Spacer(modifier = Modifier.height(30.dp))
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -129,7 +121,8 @@ fun ForgotPassword(navHostController: NavHostController) {
                 onClick = {
                     vm.resetPassword(email) { success ->
                         if (success) {
-                            Toast.makeText(context, "Письмо отправлено!", Toast.LENGTH_SHORT).show()
+                            // Показываем диалог при успешной отправке
+                            showDialog = true
                         } else {
                             Toast.makeText(context, "Ошибка при отправке письма", Toast.LENGTH_LONG).show()
                         }
@@ -147,13 +140,14 @@ fun ForgotPassword(navHostController: NavHostController) {
                 Text("Отправить", fontSize = 14.sp)
             }
 
+            // Диалоговое окно
             if (showDialog) {
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
                     text = {
                         Surface(
-                            color = Color.White, // Устанавливаем белый фон
-                            shape = RoundedCornerShape(16.dp) // Закругление углов
+                            color = Color.White,
+                            shape = RoundedCornerShape(16.dp)
                         ) {
                             Column(
                                 modifier = Modifier
@@ -161,19 +155,14 @@ fun ForgotPassword(navHostController: NavHostController) {
                                     .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                // Изображение размером 24x24
                                 Image(
-                                    painter = painterResource(id = R.drawable.zabil), // Замените на ваше изображение
+                                    painter = painterResource(id = R.drawable.zabil),
                                     contentDescription = null,
                                     modifier = Modifier
-                                        .size(24.dp) // Устанавливаем размер изображения 24x24
-                                        .padding(bottom = 8.dp) // Отступ снизу
+                                        .size(24.dp)
+                                        .padding(bottom = 8.dp)
                                 )
-
-                                // Заголовок
                                 Text("Проверьте Ваш Email", fontSize = 20.sp, color = Color.Black)
-
-                                // Текст сообщения
                                 Text(
                                     if (vm.isValidEmail(email)) {
                                         "Мы отправили код восстановления пароля на вашу электронную почту."
@@ -189,13 +178,19 @@ fun ForgotPassword(navHostController: NavHostController) {
                         }
                     },
                     confirmButton = {
-                        TextButton(onClick = { showDialog = false }) {
+                        TextButton(onClick = {
+                            showDialog = false // Скрываем диалог
+                            navHostController.navigate("Verification") {
+                                popUpTo("Verification") {
+                                    inclusive = true
+                                }
+                            }
+                        }) {
                             Text("OK")
                         }
                     }
                 )
-
-        }
+            }
         }
     }
 }

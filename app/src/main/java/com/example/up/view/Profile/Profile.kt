@@ -64,6 +64,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImagePainter
@@ -72,6 +73,7 @@ import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.up.R
 import com.example.up.model.products
+import com.example.up.model.profiles
 import com.example.up.view.SideMenu.SideMenu
 
 
@@ -82,21 +84,22 @@ fun Profile(navHostController: NavHostController) {
     var address by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     val vm = viewModel { ProfileViewModel() }
-    vm.getUser()
+    val user by remember { mutableStateOf(profiles()) } // Обновлено для использования состояния профиля
+    vm.getUser () // Получаем данные пользователя
     var isMenuOpen by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val barcodeBitmap = remember { mutableStateOf<Bitmap?>(null) }
-    val userId = vm.user.user_id
     val errorMessage = remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
-    LaunchedEffect(userId) {
-        errorMessage.value = ""
-        barcodeBitmap.value = vm.generateBarcode(userId) ?: run {
-            errorMessage.value = "Ошибка при генерации бар-кода"
-            null
-        }
-     }
+
+    LaunchedEffect(user) {
+        // Обновляем состояние при получении данных пользователя
+        name = user.name
+        firstname = user.firstname
+        address = user.address
+        phone = user.phone
+    }
     LaunchedEffect(vm.user) {
         name = vm.user.name
         firstname = vm.user.firstname
@@ -104,25 +107,32 @@ fun Profile(navHostController: NavHostController) {
         phone = vm.user.phone
     }
     val context = LocalContext.current
-
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
     }
-
     val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success: Boolean ->
     }
+    fun openCamera() {
+        val photoFile = vm.createImageFile(context)
+        val photoURI: Uri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.provider",
+            photoFile
+        )
+        cameraLauncher.launch(photoURI)
+    }
 
-    // Диалоговое окно для выбора источника изображения
     if (showDialog) {
         ImageSourceDialog(
             onDismiss = { showDialog = false },
             onGallerySelected = {
                 showDialog = false
-                launcher.launch("image/*") // Открыть галерею
+                launcher.launch("image/*")
             },
             onCameraSelected = {
                 showDialog = false
-                val photoFile = vm.createImageFile(context) // Вызов метода из ViewModel
-                cameraLauncher.launch(Uri.fromFile(photoFile))
+                openCamera()
+//                val photoFile = vm.createImageFile(context)
+//                cameraLauncher.launch(Uri.fromFile(photoFile))
             }
         )
     }
@@ -244,6 +254,7 @@ fun Profile(navHostController: NavHostController) {
                     modifier = Modifier.padding(top = 16.dp)
                 )
             }
+
             Spacer(modifier = Modifier.height(30.dp))
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Имя", fontSize = 16.sp, modifier = Modifier.padding(bottom = 4.dp))
@@ -371,7 +382,6 @@ fun Profile(navHostController: NavHostController) {
         }
     }
 }
-
 @Composable
 fun ImageSourceDialog(
     onDismiss: () -> Unit,
