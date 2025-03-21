@@ -20,8 +20,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,13 +34,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.up.R
+import com.example.up.view.Home.HomeViewModel
 
 
 @Composable
 fun SideMenu(navHostController: NavController) {
+    val vm = viewModel { SideMenuViewModel() }
+    var firstname by remember { mutableStateOf("") }
+    var lastname by remember { mutableStateOf("") }
     val icons = listOf(
         R.drawable.human, // Профиль
         R.drawable.korzina, // Корзина
@@ -77,7 +85,7 @@ fun SideMenu(navHostController: NavController) {
 
         // ФИО
         Text(
-            text = "Ваше ФИО",
+            text = firstname,
             color = Color.White,
             fontSize = 20.sp,
             modifier = Modifier.padding(top = 8.dp)
@@ -100,7 +108,7 @@ fun SideMenu(navHostController: NavController) {
                             when (index) {
                                 0 -> navHostController.navigate("Profile") // Профиль
                                 1 -> navHostController.navigate("") // Корзина
-                                2 -> navHostController.navigate("Favorite") // Избранное
+                                2 -> navHostController.navigate("Favourite") // Избранное
                                 3 -> navHostController.navigate("") // Заказы
                                 4 -> navHostController.navigate("") // Уведомления
                                 5 -> navHostController.navigate("") // Настройки

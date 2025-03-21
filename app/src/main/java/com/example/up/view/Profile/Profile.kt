@@ -252,7 +252,6 @@ fun Profile(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Отображаем поля профиля
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -274,8 +273,8 @@ fun Profile(navController: NavController) {
                         bitmap = it.asImageBitmap(),
                         contentDescription = "Бар-код",
                         modifier = Modifier
-                            .size(400.dp, 200.dp) // Установите нужный размер для бар-кода
-                            .padding(top = 16.dp) // Отступ сверху
+                            .size(400.dp, 200.dp)
+                            .padding(top = 16.dp)
                     )
                 } ?: run {
                     Text(
